@@ -15,36 +15,37 @@ import {
   ArrowLeft,
   Sparkles,
   Wallet,
+  Calendar,
+  User,
+  Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { compressImageBase64 } from "@/lib/appwrite";
 
-const HMO_PROVIDERS = [
-  "Maxicare",
-  "Intellicare",
-  "Medicard",
-  "PhilCare",
-  "Etiqa",
-  "Cigna",
-  "Avega",
-  "Generali",
-  "ValuCare",
-  "Insular Health Care",
-  "Other HMO",
+const HMO_RELATIONSHIPS = [
+  { id: "Principal", label: "Principal Cardholder" },
+  { id: "Dependent", label: "Dependent / Beneficiary" },
+  { id: "Spouse", label: "Spouse" },
+  { id: "Child", label: "Child" },
 ];
 
 export function Step3Hmo() {
-  const { formData, updateHmo, nextStep, prevStep } = useKioskStore();
+  const { formData, updateHmo, hmoProviders, nextStep, prevStep } =
+    useKioskStore();
   const hmo = formData.hmo;
 
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [activeCameraSide, setActiveCameraSide] = useState<
+    "front" | "back" | null
+  >(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const frontInputRef = useRef<HTMLInputElement | null>(null);
+  const backInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Start live tablet camera
-  const startCamera = async () => {
+  // Start live tablet camera for designated card side
+  const startCamera = async (side: "front" | "back") => {
     setCameraError(null);
-    setIsCameraActive(true);
+    setActiveCameraSide(side);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 } },
@@ -55,23 +56,29 @@ export function Step3Hmo() {
       }
     } catch {
       setCameraError(
-        "Camera access not allowed or unavailable. You can upload an image file instead."
+        "Camera access unavailable. You can upload an image file instead."
       );
-      setIsCameraActive(false);
+      setActiveCameraSide(null);
     }
   };
 
-  // Capture snapshot from webcam
-  const capturePhoto = () => {
-    if (videoRef.current) {
+  // Capture snapshot from webcam & compress with HTML canvas (<40KB)
+  const capturePhoto = async () => {
+    if (videoRef.current && activeCameraSide) {
       const canvas = document.createElement("canvas");
       canvas.width = videoRef.current.videoWidth || 640;
       canvas.height = videoRef.current.videoHeight || 480;
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-        updateHmo({ cardImage: dataUrl });
+        const rawDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        const compressed = await compressImageBase64(rawDataUrl, 320, 0.5);
+
+        if (activeCameraSide === "front") {
+          updateHmo({ cardFront: compressed });
+        } else {
+          updateHmo({ cardBack: compressed });
+        }
       }
       stopCamera();
     }
@@ -84,28 +91,46 @@ export function Step3Hmo() {
       stream.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
-    setIsCameraActive(false);
+    setActiveCameraSide(null);
   };
 
-  // File upload fallback
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // File upload fallback with compression
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    side: "front" | "back"
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         if (event.target?.result) {
-          updateHmo({ cardImage: event.target.result as string });
+          const compressed = await compressImageBase64(
+            event.target.result as string,
+            320,
+            0.5
+          );
+          if (side === "front") {
+            updateHmo({ cardFront: compressed });
+          } else {
+            updateHmo({ cardBack: compressed });
+          }
         }
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const isPrincipalRequired =
+    hmo.hasHmo &&
+    hmo.relationship !== "Principal" &&
+    hmo.relationship.length > 0;
+
   const isFormValid =
     !hmo.hasHmo ||
     (hmo.hasHmo &&
-      hmo.provider.trim().length > 0 &&
-      hmo.cardNumber.trim().length > 0);
+      hmo.providerName.trim().length > 0 &&
+      hmo.memberNumber.trim().length > 0 &&
+      (!isPrincipalRequired || hmo.principalName.trim().length > 0));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,7 +236,7 @@ export function Step3Hmo() {
                 HMO / Health Insurance
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Maxicare, Intellicare, Medicard, PhilCare, Etiqa, or company accredited insurance benefits.
+                Accredited insurance benefits: Maxicare, Intellicare, Medicard, PhilCare, Etiqa, Avega, etc.
               </p>
             </div>
           </div>
@@ -234,26 +259,34 @@ export function Step3Hmo() {
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <ShieldCheck className="size-5 text-blue-400" />
-              HMO Provider &amp; Card Information
+              HMO Provider &amp; Coverage Details
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Please choose your provider and enter your member card number.
+              Select your accredited insurance provider and enter cardholder information.
             </p>
           </div>
 
-          {/* Popular HMO Provider Chips */}
+          {/* HMO Provider Selection Chips */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-slate-300">
               Select HMO Provider <span className="text-blue-400">*</span>
             </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {HMO_PROVIDERS.map((provider) => {
-                const isSelected = hmo.provider === provider;
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
+              {hmoProviders.map((provider) => {
+                const isSelected =
+                  hmo.providerType === "select" &&
+                  hmo.providerName === provider.name;
                 return (
                   <button
-                    key={provider}
+                    key={provider.id}
                     type="button"
-                    onClick={() => updateHmo({ provider })}
+                    onClick={() =>
+                      updateHmo({
+                        providerType: "select",
+                        providerId: provider.id,
+                        providerName: provider.name,
+                      })
+                    }
                     className={cn(
                       "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
                       isSelected
@@ -261,61 +294,168 @@ export function Step3Hmo() {
                         : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
                     )}
                   >
-                    {provider}
+                    {provider.name}
                   </button>
                 );
               })}
+
+              {/* Custom / Other HMO Option */}
+              <button
+                type="button"
+                onClick={() =>
+                  updateHmo({
+                    providerType: "custom",
+                    providerId: "custom",
+                    providerName:
+                      hmo.providerType === "custom" ? hmo.providerName : "",
+                  })
+                }
+                className={cn(
+                  "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
+                  hmo.providerType === "custom"
+                    ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30"
+                    : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
+                )}
+              >
+                Other HMO
+              </button>
             </div>
           </div>
+
+          {/* Custom Provider Name Input if Other HMO */}
+          {hmo.providerType === "custom" && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <Label className="text-xs font-semibold text-slate-300">
+                Specify HMO / Insurance Company Name <span className="text-blue-400">*</span>
+              </Label>
+              <Input
+                required
+                placeholder="e.g. Asalus / Lacson & Lacson"
+                value={hmo.providerName}
+                onChange={(e) => updateHmo({ providerName: e.target.value })}
+                className="h-12 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
+              />
+            </div>
+          )}
 
           {/* Member Card Number */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-slate-300">
-              HMO Member / Account ID Number <span className="text-blue-400">*</span>
+              HMO Member / Policy / Card Number <span className="text-blue-400">*</span>
             </Label>
             <div className="relative">
               <CreditCard className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
               <Input
                 required
                 placeholder="e.g. 1122-3344-5566-7788"
-                value={hmo.cardNumber}
-                onChange={(e) => updateHmo({ cardNumber: e.target.value })}
+                value={hmo.memberNumber}
+                onChange={(e) => updateHmo({ memberNumber: e.target.value })}
                 className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
               />
             </div>
           </div>
 
-          {/* HMO Card Photo Capture / Upload */}
-          <div className="space-y-3 pt-2">
-            <Label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-              <span>HMO Card Photo (Front of Card)</span>
-              <span className="text-slate-400 font-normal">Optional but speeds up verification</span>
+          {/* Cardholder Relationship */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-300">
+              Cardholder Membership Status <span className="text-blue-400">*</span>
             </Label>
-
-            {hmo.cardImage ? (
-              /* Preview of captured card */
-              <div className="relative rounded-2xl border border-slate-700/80 overflow-hidden bg-[#040813] p-2 max-w-sm mx-auto">
-                <img
-                  src={hmo.cardImage}
-                  alt="HMO Card Preview"
-                  className="w-full h-44 object-cover rounded-xl"
-                />
-                <div className="flex gap-2 mt-2">
-                  <Button
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {HMO_RELATIONSHIPS.map((rel) => {
+                const isSelected = hmo.relationship === rel.id;
+                return (
+                  <button
+                    key={rel.id}
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => updateHmo({ cardImage: "" })}
-                    className="flex-1 h-9 text-xs border-slate-700 text-rose-400 hover:bg-rose-950/30"
+                    onClick={() => updateHmo({ relationship: rel.id })}
+                    className={cn(
+                      "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
+                      isSelected
+                        ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30 font-bold"
+                        : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
+                    )}
                   >
-                    <RotateCcw className="size-3.5 mr-1" />
-                    Retake / Remove Photo
-                  </Button>
-                </div>
+                    {rel.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Principal Cardholder Name (Required if Dependent) */}
+          {isPrincipalRequired && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <Label className="text-xs font-semibold text-slate-300">
+                Principal Member Full Name <span className="text-blue-400">*</span>
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <Input
+                  required
+                  placeholder="e.g. Roberto Dela Cruz (Company Employee)"
+                  value={hmo.principalName}
+                  onChange={(e) =>
+                    updateHmo({ principalName: e.target.value })
+                  }
+                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
+                />
               </div>
-            ) : isCameraActive ? (
-              /* Live Camera Viewfinder */
-              <div className="relative rounded-2xl border-2 border-blue-500 overflow-hidden bg-black max-w-md mx-auto p-2 space-y-3">
+              <p className="text-[11px] text-slate-400">
+                The primary employee or subscriber holding the HMO policy.
+              </p>
+            </div>
+          )}
+
+          {/* Card Validity Dates */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-300">
+                Valid From (Optional)
+              </Label>
+              <div className="relative">
+                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <Input
+                  type="date"
+                  value={hmo.validFrom}
+                  onChange={(e) => updateHmo({ validFrom: e.target.value })}
+                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white text-base"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-300">
+                Valid Until / Expiration (Optional)
+              </Label>
+              <div className="relative">
+                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <Input
+                  type="date"
+                  value={hmo.validUntil}
+                  onChange={(e) => updateHmo({ validUntil: e.target.value })}
+                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white text-base"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Dual-Side Card Photo Capture / Upload */}
+          <div className="space-y-4 pt-2">
+            <div>
+              <Label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <span>HMO Physical Card Photos</span>
+                <span className="text-slate-400 font-normal">
+                  Optional but accelerates reception approval
+                </span>
+              </Label>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Front and back captures are automatically compressed to ensure instant sync.
+              </p>
+            </div>
+
+            {/* Live Camera Viewfinder Overlay if Active */}
+            {activeCameraSide && (
+              <div className="relative rounded-2xl border-2 border-blue-500 overflow-hidden bg-black max-w-md mx-auto p-2 space-y-3 animate-in zoom-in-95 duration-200">
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-950">
                   <video
                     ref={videoRef}
@@ -325,7 +465,7 @@ export function Step3Hmo() {
                   />
                   <div className="absolute inset-4 border-2 border-dashed border-blue-400/70 rounded-lg pointer-events-none flex items-center justify-center">
                     <p className="text-[11px] text-blue-200 bg-black/60 px-2 py-1 rounded">
-                      Align Card Inside Frame
+                      Align {activeCameraSide === "front" ? "Front" : "Back"} of Card Inside Frame
                     </p>
                   </div>
                 </div>
@@ -345,45 +485,140 @@ export function Step3Hmo() {
                     className="flex-1 h-10 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30"
                   >
                     <Camera className="size-4 mr-2" />
-                    Take Photo
+                    Capture Photo
                   </Button>
                 </div>
-              </div>
-            ) : (
-              /* Trigger Buttons */
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={startCamera}
-                  className="flex-1 h-12 border-[#1b2946] bg-[#040813] text-blue-300 hover:bg-[#0b1325] hover:border-blue-500/50"
-                >
-                  <Camera className="size-4 mr-2 text-blue-400" />
-                  Take Photo with Camera
-                </Button>
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 h-12 border-[#1b2946] bg-[#040813] text-slate-300 hover:bg-[#0b1325]"
-                >
-                  Upload Saved Photo
-                </Button>
               </div>
             )}
 
             {cameraError && (
               <p className="text-xs text-amber-400 mt-1">{cameraError}</p>
             )}
+
+            {/* Dual Cards: Front and Back */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Card Front */}
+              <div className="rounded-xl border border-[#1b2946] bg-[#040813] p-3.5 space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                  <span className="flex items-center gap-1.5">
+                    <CreditCard className="size-3.5 text-blue-400" /> Card Front
+                  </span>
+                  {hmo.cardFront && (
+                    <span className="text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
+                      <CheckCircle2 className="size-3" /> Attached
+                    </span>
+                  )}
+                </div>
+
+                {hmo.cardFront ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                    <img
+                      src={hmo.cardFront}
+                      alt="Card Front"
+                      className="w-full h-32 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updateHmo({ cardFront: "" })}
+                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startCamera("front")}
+                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-blue-300 hover:bg-[#0f1b34]"
+                    >
+                      <Camera className="size-3.5 mr-1 text-blue-400" />
+                      Take Photo
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={frontInputRef}
+                      onChange={(e) => handleFileUpload(e, "front")}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => frontInputRef.current?.click()}
+                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-slate-300 hover:bg-[#0f1b34]"
+                    >
+                      <ImageIcon className="size-3.5 mr-1" />
+                      Upload
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Back */}
+              <div className="rounded-xl border border-[#1b2946] bg-[#040813] p-3.5 space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                  <span className="flex items-center gap-1.5">
+                    <CreditCard className="size-3.5 text-blue-400" /> Card Back
+                  </span>
+                  {hmo.cardBack && (
+                    <span className="text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
+                      <CheckCircle2 className="size-3" /> Attached
+                    </span>
+                  )}
+                </div>
+
+                {hmo.cardBack ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                    <img
+                      src={hmo.cardBack}
+                      alt="Card Back"
+                      className="w-full h-32 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updateHmo({ cardBack: "" })}
+                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startCamera("back")}
+                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-blue-300 hover:bg-[#0f1b34]"
+                    >
+                      <Camera className="size-3.5 mr-1 text-blue-400" />
+                      Take Photo
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={backInputRef}
+                      onChange={(e) => handleFileUpload(e, "back")}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => backInputRef.current?.click()}
+                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-slate-300 hover:bg-[#0f1b34]"
+                    >
+                      <ImageIcon className="size-3.5 mr-1" />
+                      Upload
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

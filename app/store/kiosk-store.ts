@@ -1,27 +1,44 @@
 import { create } from "zustand";
-import { ID, Query } from "appwrite";
+import { Query } from "appwrite";
 import {
   databases,
   DATABASE_ID,
   INTAKE_COLLECTION_ID,
   BRANCHES_COLLECTION_ID,
+  HMO_PROVIDERS_COLLECTION_ID,
+  PATIENTS_COLLECTION_ID,
+  MEDICAL_HISTORY_COLLECTION_ID,
   UNIVERSAL_PERMISSIONS,
 } from "@/lib/appwrite";
 import { kioskDb, type KioskQueuedSubmission } from "@/lib/db";
+import type {
+  HmoProviderOption,
+  PatientHmoDetails,
+  PatientPersonalInfoPayload,
+  PatientEmergencyContactPayload,
+  PatientVisitReasonPayload,
+  PatientMedicalHistoryPayload,
+  PatientConsentPayload,
+  PatientIntakeSubmissionRecord,
+} from "@/lib/schema";
 import { toast } from "sonner";
 
 export interface PersonalInfo {
   firstName: string;
   middleName: string;
   lastName: string;
-  gender: "male" | "female" | "other" | "";
-  birthDate: string;
+  gender: "Male" | "Female" | "Other" | "";
+  birthDate: string; // YYYY-MM-DD
   age: number | null;
   contactNumber: string;
   email: string;
   address: string;
   occupation: string;
   civilStatus: string;
+  patientType: "adult" | "minor" | "mentally_disabled";
+  guardianName: string;
+  guardianRelation: string;
+  guardianContact: string;
 }
 
 export interface EmergencyContact {
@@ -32,22 +49,46 @@ export interface EmergencyContact {
 
 export interface HmoInfo {
   hasHmo: boolean;
-  provider: string;
-  cardNumber: string;
-  cardImage: string;
+  providerType: "select" | "custom";
+  providerId: string;
+  providerName: string;
+  memberNumber: string;
+  relationship: "Principal" | "Dependent" | "Spouse" | "Child" | string;
+  principalName: string;
+  validFrom: string;
+  validUntil: string;
+  cardFront: string;
+  cardBack: string;
+  notes: string;
 }
 
 export interface VisitReason {
   chiefComplaint: string;
+  lastDentalVisit: string;
   selectedChips: string[];
   painLevel: number;
   notes: string;
 }
 
 export interface MedicalHistory {
-  conditions: Record<string, boolean>;
+  isGoodHealth: boolean;
+  isUnderTreatment: boolean;
+  hasIllnessOperation: boolean;
+  isHospitalized: boolean;
+  isTakingMeds: boolean;
+  usesTobacco: boolean;
+  drinksAlcohol: boolean;
+  usesDrugs: boolean;
+  hasAllergies: boolean;
+  isPregnant: boolean;
+  isNursing: boolean;
+  isUsingBirthControl: boolean;
+  birthControlNotes: string;
+  conditions: string[];
   allergiesNotes: string;
   currentMedications: string;
+  pastSurgeries: string;
+  otherConditions: string;
 }
 
 export interface ConsentInfo {
@@ -72,6 +113,19 @@ export interface BranchItem {
   isMain?: boolean;
 }
 
+export const DEFAULT_HMO_PROVIDERS: HmoProviderOption[] = [
+  { id: "maxicare", name: "Maxicare", isActive: true },
+  { id: "intellicare", name: "Intellicare", isActive: true },
+  { id: "medicard", name: "Medicard", isActive: true },
+  { id: "philcare", name: "PhilCare", isActive: true },
+  { id: "etiqa", name: "Etiqa", isActive: true },
+  { id: "cigna", name: "Cigna", isActive: true },
+  { id: "avega", name: "Avega", isActive: true },
+  { id: "generali", name: "Generali", isActive: true },
+  { id: "valucare", name: "ValuCare", isActive: true },
+  { id: "insular", name: "Insular Health Care", isActive: true },
+];
+
 export const INITIAL_FORM_DATA: KioskFormData = {
   personalInfo: {
     firstName: "",
@@ -85,6 +139,10 @@ export const INITIAL_FORM_DATA: KioskFormData = {
     address: "",
     occupation: "",
     civilStatus: "Single",
+    patientType: "adult",
+    guardianName: "",
+    guardianRelation: "",
+    guardianContact: "",
   },
   emergencyContact: {
     name: "",
@@ -93,30 +151,44 @@ export const INITIAL_FORM_DATA: KioskFormData = {
   },
   hmo: {
     hasHmo: false,
-    provider: "",
-    cardNumber: "",
-    cardImage: "",
+    providerType: "select",
+    providerId: "",
+    providerName: "",
+    memberNumber: "",
+    relationship: "Principal",
+    principalName: "",
+    validFrom: "",
+    validUntil: "",
+    cardFront: "",
+    cardBack: "",
+    notes: "",
   },
   visitReason: {
     chiefComplaint: "",
+    lastDentalVisit: "",
     selectedChips: [],
     painLevel: 0,
     notes: "",
   },
   medicalHistory: {
-    conditions: {
-      hypertension: false,
-      heartDisease: false,
-      diabetes: false,
-      bleedingDisorder: false,
-      allergies: false,
-      asthma: false,
-      hepatitis: false,
-      pregnantOrNursing: false,
-      bloodThinners: false,
-    },
+    isGoodHealth: true,
+    isUnderTreatment: false,
+    hasIllnessOperation: false,
+    isHospitalized: false,
+    isTakingMeds: false,
+    usesTobacco: false,
+    drinksAlcohol: false,
+    usesDrugs: false,
+    hasAllergies: false,
+    isPregnant: false,
+    isNursing: false,
+    isUsingBirthControl: false,
+    birthControlNotes: "",
+    conditions: [],
     allergiesNotes: "",
     currentMedications: "",
+    pastSurgeries: "",
+    otherConditions: "",
   },
   consent: {
     agreedToTerms: false,
@@ -131,12 +203,13 @@ interface KioskStoreState {
   branchId: string;
   branchName: string;
   branches: BranchItem[];
+  hmoProviders: HmoProviderOption[];
   isOnline: boolean;
   isSubmitting: boolean;
   offlineQueueCount: number;
   formData: KioskFormData;
 
-  // Actions
+  // Navigation & Settings Actions
   setStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -144,6 +217,7 @@ interface KioskStoreState {
   setIsOnline: (isOnline: boolean) => void;
   setOfflineQueueCount: (count: number) => void;
 
+  // Form Field Update Actions
   updatePersonalInfo: (data: Partial<PersonalInfo>) => void;
   updateEmergencyContact: (data: Partial<EmergencyContact>) => void;
   updateHmo: (data: Partial<HmoInfo>) => void;
@@ -151,10 +225,13 @@ interface KioskStoreState {
   updateMedicalHistory: (data: Partial<MedicalHistory>) => void;
   updateConsent: (data: Partial<ConsentInfo>) => void;
 
+  // Reset & Submission Pipeline
   resetForm: () => void;
   submitForm: () => Promise<boolean>;
+  createPatientDirectly: () => Promise<any>;
   drainOfflineQueue: () => Promise<void>;
   fetchBranches: () => Promise<void>;
+  fetchHmoProviders: () => Promise<void>;
   initKiosk: () => Promise<void>;
 }
 
@@ -166,9 +243,10 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
   branchId: DEFAULT_BRANCH_ID,
   branchName: "Main Clinic Branch",
   branches: [
-    { id: "main", name: "Tabasan Dental Clinic - Main Branch", isMain: true },
-    { id: "annex", name: "Tabasan Dental Clinic - Annex Branch" },
+    { id: "main", name: "Tabasan Dental Clinic - San Fernando Main", isMain: true },
+    { id: "agoo", name: "Tabasan Dental Clinic - Agoo Branch" },
   ],
+  hmoProviders: DEFAULT_HMO_PROVIDERS,
   isOnline: true,
   isSubmitting: false,
   offlineQueueCount: 0,
@@ -205,12 +283,19 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
   setOfflineQueueCount: (count) => set({ offlineQueueCount: count }),
 
   updatePersonalInfo: (data) =>
-    set((state) => ({
-      formData: {
-        ...state.formData,
-        personalInfo: { ...state.formData.personalInfo, ...data },
-      },
-    })),
+    set((state) => {
+      const merged = { ...state.formData.personalInfo, ...data };
+      // Auto-detect minor patient type if age is computed < 18
+      if (typeof merged.age === "number" && merged.age < 18 && merged.patientType === "adult") {
+        merged.patientType = "minor";
+      }
+      return {
+        formData: {
+          ...state.formData,
+          personalInfo: merged,
+        },
+      };
+    }),
 
   updateEmergencyContact: (data) =>
     set((state) => ({
@@ -263,7 +348,6 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
     try {
       if (typeof window === "undefined") return;
 
-      // Try Appwrite Cloud
       const response = await databases.listDocuments(
         DATABASE_ID,
         BRANCHES_COLLECTION_ID,
@@ -281,13 +365,11 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
 
         set({ branches: loadedBranches });
 
-        // Update Dexie branch cache
         await kioskDb.branches.clear();
         for (const b of loadedBranches) {
           await kioskDb.branches.put(b);
         }
 
-        // Restore active branch name
         const currentBranchId = get().branchId;
         const matchingBranch = loadedBranches.find(
           (b) => b.id === currentBranchId
@@ -298,7 +380,6 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
         return;
       }
     } catch {
-      // Fallback to Dexie cache if network/Appwrite fails
       try {
         const cachedBranches = await kioskDb.branches.toArray();
         if (cachedBranches && cachedBranches.length > 0) {
@@ -316,28 +397,145 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
     }
   },
 
+  fetchHmoProviders: async () => {
+    try {
+      if (typeof window === "undefined") return;
+
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        HMO_PROVIDERS_COLLECTION_ID,
+        [Query.limit(100)]
+      );
+
+      if (response && response.documents && response.documents.length > 0) {
+        const loadedProviders: HmoProviderOption[] = response.documents.map(
+          (doc: any) => ({
+            id: doc.$id || doc.id,
+            name: doc.name || doc.providerName || "HMO Provider",
+            code: doc.code || "",
+            isActive: doc.isActive !== false,
+          })
+        );
+
+        set({ hmoProviders: loadedProviders });
+
+        await kioskDb.hmoProviders.clear();
+        for (const p of loadedProviders) {
+          await kioskDb.hmoProviders.put(p);
+        }
+        return;
+      }
+    } catch {
+      try {
+        const cachedProviders = await kioskDb.hmoProviders.toArray();
+        if (cachedProviders && cachedProviders.length > 0) {
+          set({ hmoProviders: cachedProviders });
+        }
+      } catch {
+        // Leave defaults
+      }
+    }
+  },
+
   submitForm: async () => {
     const { formData, branchId, isOnline } = get();
     set({ isSubmitting: true });
 
-    const submissionId = ID.unique();
+    // Constraint 1: Must generate UUID v4
+    const submissionId = crypto.randomUUID();
     const now = Date.now();
 
-    const submissionPayload = {
+    // Serialize payloads matching Section 4 & Section 5.B
+    const personalInfoPayload: PatientPersonalInfoPayload = {
+      firstname: formData.personalInfo.firstName.trim(),
+      lastname: formData.personalInfo.lastName.trim(),
+      middlename: formData.personalInfo.middleName.trim(),
+      gender: formData.personalInfo.gender || "Male",
+      birthdate: formData.personalInfo.birthDate || "",
+      phone: formData.personalInfo.contactNumber.trim(),
+      email: formData.personalInfo.email.trim(),
+      address: formData.personalInfo.address.trim(),
+      occupation: formData.personalInfo.occupation.trim(),
+      patientType: formData.personalInfo.patientType || "adult",
+      guardianName: formData.personalInfo.guardianName.trim(),
+      guardianRelation: formData.personalInfo.guardianRelation.trim(),
+      guardianContact: formData.personalInfo.guardianContact.trim(),
+      civilStatus: formData.personalInfo.civilStatus,
+    };
+
+    const emergencyContactPayload: PatientEmergencyContactPayload = {
+      contactPerson: formData.emergencyContact.name.trim(),
+      relationship: formData.emergencyContact.relationship || "Parent",
+      contactNumber: formData.emergencyContact.contactNumber.trim(),
+    };
+
+    const hmoPayload: PatientHmoDetails = {
+      hasHmo: formData.hmo.hasHmo,
+      providerType: formData.hmo.providerType,
+      providerId: formData.hmo.providerId,
+      providerName: formData.hmo.providerName.trim(),
+      memberNumber: formData.hmo.memberNumber.trim(),
+      relationship: formData.hmo.relationship,
+      principalName: formData.hmo.principalName.trim(),
+      validFrom: formData.hmo.validFrom,
+      validUntil: formData.hmo.validUntil,
+      cardFront: formData.hmo.cardFront,
+      cardBack: formData.hmo.cardBack,
+      notes: formData.hmo.notes.trim(),
+    };
+
+    const visitReasonPayload: PatientVisitReasonPayload = {
+      chiefComplaint: formData.visitReason.chiefComplaint.trim(),
+      lastDentalVisit: formData.visitReason.lastDentalVisit.trim(),
+      selectedChips: formData.visitReason.selectedChips || [],
+      painLevel: formData.visitReason.painLevel,
+      notes: formData.visitReason.notes.trim(),
+    };
+
+    const medicalHistoryPayload: PatientMedicalHistoryPayload = {
+      isGoodHealth: formData.medicalHistory.isGoodHealth,
+      isUnderTreatment: formData.medicalHistory.isUnderTreatment,
+      hasIllnessOperation: formData.medicalHistory.hasIllnessOperation,
+      isHospitalized: formData.medicalHistory.isHospitalized,
+      isTakingMeds: formData.medicalHistory.isTakingMeds,
+      usesTobacco: formData.medicalHistory.usesTobacco,
+      drinksAlcohol: formData.medicalHistory.drinksAlcohol,
+      usesDrugs: formData.medicalHistory.usesDrugs,
+      hasAllergies: formData.medicalHistory.hasAllergies,
+      isPregnant: formData.medicalHistory.isPregnant,
+      isNursing: formData.medicalHistory.isNursing,
+      isUsingBirthControl: formData.medicalHistory.isUsingBirthControl,
+      birthControlNotes: formData.medicalHistory.birthControlNotes.trim(),
+      conditions: formData.medicalHistory.conditions,
+      allergies: formData.medicalHistory.allergiesNotes.trim(),
+      medications: formData.medicalHistory.currentMedications.trim(),
+      pastSurgeries: formData.medicalHistory.pastSurgeries.trim(),
+      otherConditions: formData.medicalHistory.otherConditions.trim(),
+    };
+
+    const consentPayload: PatientConsentPayload = {
+      agreedToPrivacyPolicy: true,
+      agreedToTreatmentTerms: true,
+      signatureBase64: formData.consent.signature,
+      signedAt: new Date(now).toISOString(),
+    };
+
+    const submissionPayload: PatientIntakeSubmissionRecord = {
       branchId,
-      status: "pending_review" as const,
+      status: "pending_review",
       submittedAt: now,
-      personalInfo: JSON.stringify(formData.personalInfo),
-      emergencyContact: JSON.stringify(formData.emergencyContact),
-      hmo: JSON.stringify(formData.hmo),
-      visitReason: JSON.stringify(formData.visitReason),
-      medicalHistory: JSON.stringify(formData.medicalHistory),
-      consent: JSON.stringify(formData.consent),
+      personalInfo: JSON.stringify(personalInfoPayload),
+      emergencyContact: JSON.stringify(emergencyContactPayload),
+      hmo: JSON.stringify(hmoPayload),
+      visitReason: JSON.stringify(visitReasonPayload),
+      medicalHistory: JSON.stringify(medicalHistoryPayload),
+      consent: JSON.stringify(consentPayload),
+      createdAt: now,
+      updatedAt: now,
     };
 
     let pushSuccess = false;
 
-    // Try online direct push first if navigator reports online
     if (isOnline) {
       try {
         await databases.createDocument(
@@ -349,12 +547,14 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
         );
         pushSuccess = true;
       } catch (err: any) {
-        console.warn("Direct push to Appwrite Cloud failed, queuing locally in Dexie:", err);
+        console.warn(
+          "Direct push to Appwrite Cloud failed, queuing locally in Dexie:",
+          err
+        );
       }
     }
 
     if (!pushSuccess) {
-      // Offline fallback: save to Dexie DB
       try {
         const offlineRecord: KioskQueuedSubmission = {
           id: submissionId,
@@ -368,12 +568,15 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
           medicalHistory: submissionPayload.medicalHistory,
           consent: submissionPayload.consent,
           createdAt: now,
+          updatedAt: now,
         };
 
         await kioskDb.offlineSubmissions.put(offlineRecord);
         const count = await kioskDb.offlineSubmissions.count();
         set({ offlineQueueCount: count });
-        toast.info("Check-in saved locally on device. Will auto-sync to reception once reconnected.");
+        toast.info(
+          "Check-in saved locally on device. Will auto-sync to reception once reconnected."
+        );
       } catch (dexieErr) {
         console.error("Dexie queue error:", dexieErr);
         toast.error("Could not save submission. Please inform the receptionist.");
@@ -384,6 +587,108 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
 
     set({ isSubmitting: false, currentStep: 6 });
     return true;
+  },
+
+  createPatientDirectly: async () => {
+    const { formData, branchId } = get();
+    const patientId = crypto.randomUUID();
+    const now = Date.now();
+
+    const hmoJson = formData.hmo.hasHmo
+      ? JSON.stringify({
+          hasHmo: true,
+          providerName: formData.hmo.providerName || "",
+          memberNumber: formData.hmo.memberNumber || "",
+          relationship: formData.hmo.relationship || "Principal",
+          principalName: formData.hmo.principalName || "",
+          validFrom: formData.hmo.validFrom || "",
+          validUntil: formData.hmo.validUntil || "",
+        })
+      : "";
+
+    const emergencySummary = formData.emergencyContact.name
+      ? `${formData.emergencyContact.name.trim()} (${formData.emergencyContact.relationship || "Contact"} - ${formData.emergencyContact.contactNumber.trim()})`
+      : "";
+
+    const patientPayload = {
+      firstname: formData.personalInfo.firstName.trim(),
+      lastname: formData.personalInfo.lastName.trim(),
+      middlename: formData.personalInfo.middleName.trim(),
+      phone: formData.personalInfo.contactNumber.trim(),
+      email: formData.personalInfo.email.trim(),
+      gender: formData.personalInfo.gender || "Male",
+      birthdate: formData.personalInfo.birthDate || "",
+      address: formData.personalInfo.address.trim(),
+      occupation: formData.personalInfo.occupation.trim(),
+      patientType: formData.personalInfo.patientType || "adult",
+      emergencyToContact: emergencySummary,
+      hmoDetails: hmoJson,
+      notes: formData.visitReason.chiefComplaint.trim(),
+      branchId,
+      createdBy: "front_desk_app",
+      createdAt: now,
+      updatedAt: now,
+      data: JSON.stringify({
+        id: patientId,
+        firstname: formData.personalInfo.firstName,
+        lastname: formData.personalInfo.lastName,
+        middlename: formData.personalInfo.middleName,
+        branchId,
+        guardianName: formData.personalInfo.guardianName || "",
+        guardianRelation: formData.personalInfo.guardianRelation || "",
+        guardianContact: formData.personalInfo.guardianContact || "",
+        createdAt: now,
+      }),
+    };
+
+    const patientDoc = await databases.createDocument(
+      DATABASE_ID,
+      PATIENTS_COLLECTION_ID,
+      patientId,
+      patientPayload,
+      UNIVERSAL_PERMISSIONS
+    );
+
+    // Also link medical history record
+    const medHistoryId = crypto.randomUUID();
+    const medPayload = {
+      id: medHistoryId,
+      patientId: patientId,
+      isGoodHealth: formData.medicalHistory.isGoodHealth,
+      isUnderTreatment: formData.medicalHistory.isUnderTreatment,
+      hasIllnessOperation: formData.medicalHistory.hasIllnessOperation,
+      isHospitalized: formData.medicalHistory.isHospitalized,
+      isTakingMeds: formData.medicalHistory.isTakingMeds,
+      usesTobacco: formData.medicalHistory.usesTobacco,
+      drinksAlcohol: formData.medicalHistory.drinksAlcohol,
+      usesDrugs: formData.medicalHistory.usesDrugs,
+      hasAllergies: formData.medicalHistory.hasAllergies,
+      isPregnant: formData.medicalHistory.isPregnant,
+      isNursing: formData.medicalHistory.isNursing,
+      isUsingBirthControl: formData.medicalHistory.isUsingBirthControl,
+      birthControlNotes: formData.medicalHistory.birthControlNotes,
+      conditions: formData.medicalHistory.conditions,
+      allergies: formData.medicalHistory.allergiesNotes,
+      medications: formData.medicalHistory.currentMedications,
+      pastSurgeries: formData.medicalHistory.pastSurgeries,
+      otherConditions: formData.medicalHistory.otherConditions,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    try {
+      await databases.createDocument(
+        DATABASE_ID,
+        MEDICAL_HISTORY_COLLECTION_ID,
+        medHistoryId,
+        medPayload,
+        UNIVERSAL_PERMISSIONS
+      );
+    } catch (medErr) {
+      console.warn("Could not create medical history directly:", medErr);
+    }
+
+    return patientDoc;
   },
 
   drainOfflineQueue: async () => {
@@ -411,6 +716,8 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
               visitReason: item.visitReason,
               medicalHistory: item.medicalHistory,
               consent: item.consent,
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt || item.createdAt,
             },
             UNIVERSAL_PERMISSIONS
           );
@@ -419,7 +726,6 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
           syncedCount++;
         } catch (syncErr) {
           console.warn(`Failed to drain queued item ${item.id}:`, syncErr);
-          // Stop draining if network fails again
           break;
         }
       }
@@ -428,7 +734,9 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
       set({ offlineQueueCount: remainingCount });
 
       if (syncedCount > 0) {
-        toast.success(`Synced ${syncedCount} queued check-in${syncedCount > 1 ? "s" : ""} to reception.`);
+        toast.success(
+          `Synced ${syncedCount} queued check-in${syncedCount > 1 ? "s" : ""} to reception.`
+        );
       }
     } catch (err) {
       console.error("drainOfflineQueue error:", err);
@@ -438,7 +746,6 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
   initKiosk: async () => {
     if (typeof window === "undefined") return;
 
-    // Restore saved branch
     try {
       const savedBranchId = localStorage.getItem("tabasan_kiosk_branch_id");
       const savedBranchName = localStorage.getItem("tabasan_kiosk_branch_name");
@@ -452,10 +759,8 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
       // Ignore
     }
 
-    // Set online status
     set({ isOnline: navigator.onLine });
 
-    // Check queued offline submissions
     try {
       const count = await kioskDb.offlineSubmissions.count();
       set({ offlineQueueCount: count });
@@ -463,10 +768,9 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
       // Ignore
     }
 
-    // Fetch branches
     await get().fetchBranches();
+    await get().fetchHmoProviders();
 
-    // If online, drain queue
     if (navigator.onLine) {
       await get().drainOfflineQueue();
     }

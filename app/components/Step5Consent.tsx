@@ -16,6 +16,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { compressImageBase64 } from "@/lib/appwrite";
 
 export function Step5Consent() {
   const {
@@ -38,7 +39,6 @@ export function Step5Consent() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set high resolution for canvas
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * 2;
     canvas.height = rect.height * 2;
@@ -112,13 +112,15 @@ export function Step5Consent() {
     setHasSignature(true);
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = async () => {
     if (!isDrawing.current) return;
     isDrawing.current = false;
     const canvas = canvasRef.current;
     if (canvas) {
-      const dataUrl = canvas.toDataURL("image/png");
-      updateConsent({ signature: dataUrl, signedAt: Date.now() });
+      // Compress signature image to stay below Appwrite 65KB limit (< 15KB)
+      const rawDataUrl = canvas.toDataURL("image/jpeg", 0.6);
+      const compressed = await compressImageBase64(rawDataUrl, 320, 0.5);
+      updateConsent({ signature: compressed, signedAt: Date.now() });
     }
   };
 
@@ -173,18 +175,18 @@ export function Step5Consent() {
               accordance with the Philippine Data Privacy Act of 2012, Tabasan Dental Clinic collects
               and processes your personal and health records solely for diagnostic examination,
               treatment planning, insurance verification, and continuity of dental healthcare. Your
-              records are kept confidential and protected by clinic encryption protocols.
+              records are kept strictly confidential and protected by clinic encryption protocols.
             </p>
             <p>
               <strong className="text-slate-200">2. Truthful Health Disclosure:</strong> You certify
-              that the medical history, systemic conditions, and current medications provided in this
+              that the personal demographics, medical history, systemic conditions, and current medications provided in this
               self-service intake are true and accurate. Withholding health information may compromise
-              anesthetic safety and treatment outcomes.
+              anesthetic safety and clinical outcomes.
             </p>
             <p>
-              <strong className="text-slate-200">3. Examination Consent:</strong> You authorize our
+              <strong className="text-slate-200">3. Examination &amp; X-Ray Consent:</strong> You authorize our
               licensed dentists and clinical hygienists to conduct an oral examination, necessary dental
-              radiographs (X-rays), and discuss treatment options with you prior to performing any
+              radiographs (digital X-rays), and discuss treatment options with you prior to performing any
               procedure.
             </p>
           </div>
@@ -246,9 +248,9 @@ export function Step5Consent() {
           </div>
           <div className="text-xs sm:text-sm leading-relaxed">
             <span className="font-semibold text-white">
-              I consent to the collection and processing of my health data
+              I give my explicit consent to Tabasan Dental Clinic
             </span>{" "}
-            under Republic Act No. 10173 for dental treatment and clinic record keeping.
+            to collect and process my health data in accordance with Republic Act No. 10173 for dental treatment and clinic record keeping.
           </div>
         </div>
 
@@ -257,7 +259,7 @@ export function Step5Consent() {
           <div className="flex items-center justify-between">
             <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
               <PenLine className="size-4 text-blue-400" />
-              Patient Signature (Sign with finger or stylus inside box) <span className="text-blue-400">*</span>
+              Patient or Legal Guardian Signature <span className="text-blue-400">*</span>
             </Label>
             {hasSignature && (
               <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
@@ -281,7 +283,7 @@ export function Step5Consent() {
 
             {!hasSignature && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-600 font-medium text-sm select-none">
-                Draw Your Signature Here
+                Draw Your Signature Here (Finger or Stylus)
               </div>
             )}
 

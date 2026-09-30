@@ -16,6 +16,7 @@ import {
   Meh,
   Frown,
   AlertTriangle,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,13 @@ const RELATIONSHIPS = [
   "Relative",
   "Friend",
   "Guardian",
+];
+
+const LAST_DENTAL_VISIT_OPTIONS = [
+  { id: "under_6_months", label: "Less than 6 months ago" },
+  { id: "6_to_12_months", label: "6 to 12 months ago" },
+  { id: "over_1_year", label: "More than 1 year ago" },
+  { id: "never", label: "First time at a dental clinic" },
 ];
 
 const CHIEF_COMPLAINTS = [
@@ -140,6 +148,34 @@ export function Step2Emergency() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Last Dental Visit Selection */}
+          <div className="pt-2 space-y-2">
+            <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Clock className="size-3.5 text-blue-400" />
+              When was your last dental visit?
+            </Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+              {LAST_DENTAL_VISIT_OPTIONS.map((opt) => {
+                const isSelected = visit.lastDentalVisit === opt.label;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => updateVisitReason({ lastDentalVisit: opt.label })}
+                    className={cn(
+                      "p-2.5 rounded-xl border text-xs font-medium text-left transition-all active:scale-95",
+                      isSelected
+                        ? "bg-blue-600/20 border-blue-400 text-white shadow-md font-semibold ring-1 ring-blue-400/50"
+                        : "bg-[#040813] border-[#1b2946] text-slate-400 hover:text-white hover:bg-[#0b1325]"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Pain Scale Indicator */}

@@ -11,11 +11,14 @@ import {
   HeartPulse,
   CreditCard,
   RotateCcw,
+  User,
+  Shield,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
 export function Step6Success() {
-  const { formData, branchName, resetForm } = useKioskStore();
+  const { formData, branchName, resetForm, isOnline, offlineQueueCount } =
+    useKioskStore();
   const [countdown, setCountdown] = useState(15);
 
   const fullName =
@@ -70,14 +73,14 @@ export function Step6Success() {
           Thank you, {fullName}!
         </h2>
         <p className="text-sm sm:text-base text-slate-300 max-w-lg mx-auto leading-relaxed">
-          Your check-in has been sent to our front-desk reception. Please take a comfortable seat in our waiting lounge.
+          Your check-in has been sent to our front-desk reception queue. Please take a comfortable seat in our waiting lounge.
         </p>
       </div>
 
       {/* Summary Card */}
       <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-6 text-left shadow-xl space-y-3 max-w-md mx-auto">
         <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-[#1b2946]">
-          <span className="font-semibold text-slate-300">Intake Details</span>
+          <span className="font-semibold text-slate-300">Intake Summary</span>
           <span className="flex items-center gap-1 text-blue-400">
             <Calendar className="size-3.5" />
             {new Date().toLocaleDateString("en-US", {
@@ -88,7 +91,7 @@ export function Step6Success() {
           </span>
         </div>
 
-        <div className="space-y-2 text-xs">
+        <div className="space-y-2.5 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-slate-400 flex items-center gap-1.5">
               <MapPin className="size-3.5 text-slate-500" />
@@ -99,10 +102,24 @@ export function Step6Success() {
 
           <div className="flex items-center justify-between">
             <span className="text-slate-400 flex items-center gap-1.5">
+              <User className="size-3.5 text-slate-500" />
+              Classification
+            </span>
+            <span className="font-medium text-slate-200 capitalize">
+              {formData.personalInfo.patientType === "minor"
+                ? `Minor (Guardian: ${formData.personalInfo.guardianName || "Parent"})`
+                : formData.personalInfo.patientType === "mentally_disabled"
+                ? "Special Care / PWD"
+                : "Adult Patient"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 flex items-center gap-1.5">
               <HeartPulse className="size-3.5 text-slate-500" />
               Chief Concern
             </span>
-            <span className="font-medium text-blue-300 truncate max-w-[180px]">
+            <span className="font-medium text-blue-300 truncate max-w-[200px]">
               {formData.visitReason.selectedChips.join(", ") ||
                 formData.visitReason.chiefComplaint ||
                 "Consultation"}
@@ -116,8 +133,18 @@ export function Step6Success() {
             </span>
             <span className="font-medium text-white">
               {formData.hmo.hasHmo
-                ? `HMO (${formData.hmo.provider || "Insurance"})`
-                : "Self-Pay / Cash / Card"}
+                ? `HMO (${formData.hmo.providerName || "Accredited"})`
+                : "Self-Pay / Private"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between pt-1 border-t border-[#1b2946]">
+            <span className="text-slate-400 flex items-center gap-1.5">
+              <Shield className="size-3.5 text-slate-500" />
+              Transmission
+            </span>
+            <span className="text-[11px] font-semibold text-emerald-400">
+              {isOnline ? "Sent Online to Reception" : "Saved Locally (Auto-Syncing)"}
             </span>
           </div>
         </div>

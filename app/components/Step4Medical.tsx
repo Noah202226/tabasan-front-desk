@@ -15,91 +15,45 @@ import {
   Droplet,
   ShieldAlert,
   Baby,
+  Stethoscope,
+  Cigarette,
+  Wine,
+  Building2,
+  Syringe,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface HealthQuestion {
-  key: string;
-  title: string;
-  tagalog: string;
-  desc: string;
-  icon: any;
-  forFemaleOnly?: boolean;
-}
-
-const HEALTH_QUESTIONS: HealthQuestion[] = [
-  {
-    key: "hypertension",
-    title: "High Blood Pressure / Hypertension",
-    tagalog: "Mataas na presyon ng dugo",
-    desc: "Important for local anesthetic selection (with or without epinephrine).",
-    icon: Activity,
-  },
-  {
-    key: "heartDisease",
-    title: "Heart Trouble / Murmur / Pacemaker",
-    tagalog: "Karamdaman sa puso",
-    desc: "May require antibiotic prophylaxis prior to surgical or deep cleaning procedures.",
-    icon: Heart,
-  },
-  {
-    key: "diabetes",
-    title: "Diabetes / High Blood Sugar",
-    tagalog: "Diyabetes o mataas na asukal sa dugo",
-    desc: "Affects tissue healing, gum inflammation, and post-extraction recovery.",
-    icon: Droplet,
-  },
-  {
-    key: "bleedingDisorder",
-    title: "Bleeding Tendency / Hemophilia",
-    tagalog: "Mabagal mamuo ang dugo / Madalas magpasa",
-    desc: "Crucial for extractions and surgical procedures.",
-    icon: Droplet,
-  },
-  {
-    key: "bloodThinners",
-    title: "Taking Blood Thinners / Aspirin / Warfarin",
-    tagalog: "Umiinom ng pampalabnaw ng dugo",
-    desc: "Aspirin, Clopidogrel, Warfarin, or other anticoagulants.",
-    icon: Pill,
-  },
-  {
-    key: "allergies",
-    title: "Allergies to Penicillin, Anesthetics, or Latex",
-    tagalog: "Allergy sa gamot, pampamanhid, o latex gloves",
-    desc: "Prevents severe allergic reactions during dental anesthesia.",
-    icon: ShieldAlert,
-  },
-  {
-    key: "asthma",
-    title: "Asthma or Respiratory Conditions",
-    tagalog: "Hika o kahirapan sa paghinga",
-    desc: "Helps us ensure quick access to your inhaler if needed.",
-    icon: Activity,
-  },
-  {
-    key: "pregnantOrNursing",
-    title: "Currently Pregnant or Breastfeeding?",
-    tagalog: "Buntis o nagpapasuso sa sanggol?",
-    desc: "Affects dental X-ray clearance and prescription safety.",
-    icon: Baby,
-    forFemaleOnly: true,
-  },
+const SYSTEMIC_CONDITIONS = [
+  { id: "hypertension", label: "Hypertension / High BP", tagalog: "Mataas na presyon" },
+  { id: "heart_disease", label: "Heart Disease / Murmur", tagalog: "Sakit sa puso" },
+  { id: "diabetes", label: "Diabetes / High Blood Sugar", tagalog: "Diyabetes" },
+  { id: "bleeding_disorder", label: "Bleeding Tendency / Easy Bruising", tagalog: "Mabilis magdugo" },
+  { id: "blood_thinners", label: "Taking Blood Thinners (Aspirin/Warfarin)", tagalog: "Pampalabnaw ng dugo" },
+  { id: "asthma", label: "Asthma / Respiratory Conditions", tagalog: "Hika" },
+  { id: "hepatitis", label: "Hepatitis / Liver Disease", tagalog: "Sakit sa atay" },
+  { id: "kidney_disease", label: "Kidney Disease", tagalog: "Sakit sa bato" },
+  { id: "epilepsy", label: "Epilepsy / Seizures", tagalog: "Kumbulsyon" },
+  { id: "thyroid", label: "Thyroid Disorder (Goiter)", tagalog: "Problema sa thyroid" },
 ];
 
 export function Step4Medical() {
   const { formData, updateMedicalHistory, nextStep, prevStep } =
     useKioskStore();
   const medical = formData.medicalHistory;
-  const isFemale = formData.personalInfo.gender === "female";
+  const isFemale = formData.personalInfo.gender === "Female";
 
-  const handleToggle = (key: string, val: boolean) => {
-    updateMedicalHistory({
-      conditions: {
-        ...medical.conditions,
-        [key]: val,
-      },
-    });
+  const toggleConditionChip = (label: string) => {
+    const current = medical.conditions || [];
+    if (current.includes(label)) {
+      updateMedicalHistory({
+        conditions: current.filter((c) => c !== label),
+      });
+    } else {
+      updateMedicalHistory({
+        conditions: [...current, label],
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,125 +69,451 @@ export function Step4Medical() {
           Step 4: Health &amp; Medical Safety
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          Medical Screening
+          Medical Screening Questionnaire
         </h2>
         <p className="text-xs sm:text-sm text-slate-400">
-          Your safety is our priority. Please answer truthfully so our dentists can safely administer anesthesia and care.
+          Your safety is our priority. Please answer truthfully so our dentists can safely administer anesthesia and clinical care.
         </p>
       </div>
 
-      <div className="space-y-3">
-        {HEALTH_QUESTIONS.filter((q) => !q.forFemaleOnly || isFemale).map(
-          (q) => {
-            const isYes = Boolean(medical.conditions[q.key]);
-            const Icon = q.icon;
+      <div className="space-y-6">
+        {/* Section 1: General Health Screening Yes/No Cards */}
+        <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b border-[#1b2946]">
+            <Stethoscope className="size-4 text-blue-400" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              1. General Health Screening
+            </h3>
+          </div>
 
-            return (
-              <div
-                key={q.key}
-                className={cn(
-                  "p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4",
-                  isYes
-                    ? "bg-[#201505] border-amber-500/60 ring-1 ring-amber-500/40"
-                    : "bg-[#070c18]/90 border-[#17233d] hover:border-slate-700"
-                )}
-              >
-                <div className="flex items-start gap-3.5">
-                  <div
-                    className={cn(
-                      "size-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5",
-                      isYes
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : "bg-slate-800 text-slate-400 border border-slate-700"
-                    )}
-                  >
-                    <Icon className="size-5" />
+          <div className="space-y-2.5">
+            {/* Good Health */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-white">
+                  Are you in good general health?
+                </h4>
+                <p className="text-xs text-blue-400 font-medium">
+                  Mabuti ba ang iyong pangkalahatang kalusugan?
+                </p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ isGoodHealth: false })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    !medical.isGoodHealth
+                      ? "bg-amber-600 text-white border-amber-400"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ isGoodHealth: true })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    medical.isGoodHealth
+                      ? "bg-blue-600 text-white border-blue-400 shadow-md"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  YES
+                </button>
+              </div>
+            </div>
+
+            {/* Under Treatment */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-white">
+                  Are you currently under a doctor&apos;s care or medical treatment?
+                </h4>
+                <p className="text-xs text-blue-400 font-medium">
+                  Kasalukuyan bang nagpapagamot sa doktor?
+                </p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ isUnderTreatment: false })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    !medical.isUnderTreatment
+                      ? "bg-slate-800 text-white border-slate-600"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ isUnderTreatment: true })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    medical.isUnderTreatment
+                      ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  YES
+                </button>
+              </div>
+            </div>
+
+            {/* Hospitalization / Operations */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-white">
+                  Have you had past serious operations or hospitalizations?
+                </h4>
+                <p className="text-xs text-blue-400 font-medium">
+                  Nagkaroon na ba ng malubhang operasyon o naospital?
+                </p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateMedicalHistory({
+                      hasIllnessOperation: false,
+                      isHospitalized: false,
+                    })
+                  }
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    !medical.hasIllnessOperation && !medical.isHospitalized
+                      ? "bg-slate-800 text-white border-slate-600"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateMedicalHistory({
+                      hasIllnessOperation: true,
+                      isHospitalized: true,
+                    })
+                  }
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    medical.hasIllnessOperation || medical.isHospitalized
+                      ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  YES
+                </button>
+              </div>
+            </div>
+
+            {/* Allergies Switch */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-white">
+                  Do you have allergies to penicillin, anesthesia, or latex?
+                </h4>
+                <p className="text-xs text-blue-400 font-medium">
+                  May allergy sa gamot, pampamanhid, o latex gloves?
+                </p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ hasAllergies: false })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    !medical.hasAllergies
+                      ? "bg-slate-800 text-white border-slate-600"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateMedicalHistory({ hasAllergies: true })}
+                  className={cn(
+                    "h-9 px-4 rounded-lg text-xs font-bold border transition-all active:scale-95",
+                    medical.hasAllergies
+                      ? "bg-rose-600 text-white border-rose-400 font-bold"
+                      : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                  )}
+                >
+                  YES
+                </button>
+              </div>
+            </div>
+
+            {/* Tobacco / Alcohol Habits */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="p-3 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <Cigarette className="size-3.5 text-slate-400" />
+                    Smoke / Vape User?
                   </div>
-                  <div>
-                    <h4 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                      {q.title}
-                      {isYes && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold">
-                          Noted
-                        </span>
-                      )}
-                    </h4>
-                    <p className="text-xs text-blue-400 font-medium">{q.tagalog}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{q.desc}</p>
-                  </div>
+                  <div className="text-[11px] text-slate-400">Naninigarilyo / Vape</div>
                 </div>
-
-                {/* Big Touch YES / NO Switch */}
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <div className="flex gap-1">
                   <button
                     type="button"
-                    onClick={() => handleToggle(q.key, false)}
+                    onClick={() => updateMedicalHistory({ usesTobacco: false })}
                     className={cn(
-                      "h-11 px-5 rounded-xl font-bold text-xs sm:text-sm border transition-all active:scale-95",
-                      !isYes
-                        ? "bg-slate-800 border-slate-600 text-white shadow-sm"
-                        : "bg-[#040813] border-[#1b2946] text-slate-500 hover:text-slate-300"
+                      "h-8 px-3 rounded text-xs font-bold border",
+                      !medical.usesTobacco
+                        ? "bg-slate-800 text-white border-slate-600"
+                        : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
                     )}
                   >
                     NO
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => handleToggle(q.key, true)}
+                    onClick={() => updateMedicalHistory({ usesTobacco: true })}
                     className={cn(
-                      "h-11 px-5 rounded-xl font-bold text-xs sm:text-sm border transition-all active:scale-95",
-                      isYes
-                        ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/30"
-                        : "bg-[#040813] border-[#1b2946] text-slate-500 hover:text-amber-400 hover:border-amber-500/40"
+                      "h-8 px-3 rounded text-xs font-bold border",
+                      medical.usesTobacco
+                        ? "bg-amber-500 text-slate-950 border-amber-400"
+                        : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
                     )}
                   >
                     YES
                   </button>
                 </div>
               </div>
-            );
-          }
-        )}
-      </div>
 
-      {/* Allergies Detail Input if Allergies is YES */}
-      {medical.conditions.allergies && (
-        <div className="rounded-2xl border border-amber-500/50 bg-[#201505] p-5 space-y-2 animate-in fade-in">
-          <Label className="text-xs font-bold text-amber-300 flex items-center gap-2">
-            <AlertCircle className="size-4" />
-            Please specify your drug or food allergies:
-          </Label>
-          <textarea
-            rows={2}
-            placeholder="e.g. Allergic to Amoxicillin (rashes) and Mefenamic Acid..."
-            value={medical.allergiesNotes}
-            onChange={(e) =>
-              updateMedicalHistory({ allergiesNotes: e.target.value })
-            }
-            className="w-full rounded-xl bg-[#040813] border border-amber-500/40 p-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400"
-          />
+              <div className="p-3 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <Wine className="size-3.5 text-slate-400" />
+                    Drinks Alcohol Regularly?
+                  </div>
+                  <div className="text-[11px] text-slate-400">Madalas uminom ng alak</div>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => updateMedicalHistory({ drinksAlcohol: false })}
+                    className={cn(
+                      "h-8 px-3 rounded text-xs font-bold border",
+                      !medical.drinksAlcohol
+                        ? "bg-slate-800 text-white border-slate-600"
+                        : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                    )}
+                  >
+                    NO
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateMedicalHistory({ drinksAlcohol: true })}
+                    className={cn(
+                      "h-8 px-3 rounded text-xs font-bold border",
+                      medical.drinksAlcohol
+                        ? "bg-amber-500 text-slate-950 border-amber-400"
+                        : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                    )}
+                  >
+                    YES
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Women's Health (If Female) */}
+            {isFemale && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 animate-in fade-in">
+                <div className="p-3 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <Baby className="size-3.5 text-pink-400" />
+                      Currently Pregnant?
+                    </div>
+                    <div className="text-[11px] text-slate-400">Buntis sa kasalukuyan</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => updateMedicalHistory({ isPregnant: false })}
+                      className={cn(
+                        "h-8 px-3 rounded text-xs font-bold border",
+                        !medical.isPregnant
+                          ? "bg-slate-800 text-white border-slate-600"
+                          : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                      )}
+                    >
+                      NO
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateMedicalHistory({ isPregnant: true })}
+                      className={cn(
+                        "h-8 px-3 rounded text-xs font-bold border",
+                        medical.isPregnant
+                          ? "bg-pink-600 text-white border-pink-400 shadow-md"
+                          : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                      )}
+                    >
+                      YES
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl border border-[#1b2946] bg-[#040813] flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <Baby className="size-3.5 text-pink-400" />
+                      Breastfeeding / Nursing?
+                    </div>
+                    <div className="text-[11px] text-slate-400">Nagpapasuso sa sanggol</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => updateMedicalHistory({ isNursing: false })}
+                      className={cn(
+                        "h-8 px-3 rounded text-xs font-bold border",
+                        !medical.isNursing
+                          ? "bg-slate-800 text-white border-slate-600"
+                          : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                      )}
+                    >
+                      NO
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateMedicalHistory({ isNursing: true })}
+                      className={cn(
+                        "h-8 px-3 rounded text-xs font-bold border",
+                        medical.isNursing
+                          ? "bg-pink-600 text-white border-pink-400 shadow-md"
+                          : "bg-[#080f1e] text-slate-400 border-[#1b2946]"
+                      )}
+                    >
+                      YES
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      )}
 
-      {/* Current Medications */}
-      <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-2">
-        <Label className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-          <Pill className="size-4 text-blue-400" />
-          Are you taking any maintenance medications or daily tablets?
-        </Label>
-        <textarea
-          rows={2}
-          placeholder="e.g. Amlodipine 5mg once daily for BP, Metformin 500mg, Multivitamins..."
-          value={medical.currentMedications}
-          onChange={(e) =>
-            updateMedicalHistory({ currentMedications: e.target.value })
-          }
-          className="w-full rounded-xl bg-[#040813] border border-[#1b2946] p-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500"
-        />
-        <p className="text-[11px] text-slate-400">
-          Leave blank if you are not currently taking any medications.
-        </p>
+        {/* Section 2: Specific Medical & Systemic Conditions (Chips) */}
+        <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-4">
+          <div className="flex items-center justify-between pb-1 border-b border-[#1b2946]">
+            <div className="flex items-center gap-2">
+              <Activity className="size-4 text-amber-400" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                2. Systemic &amp; Chronic Conditions
+              </h3>
+            </div>
+            {medical.conditions.length > 0 && (
+              <span className="text-xs font-bold text-amber-400 bg-amber-950/70 border border-amber-500/30 px-2.5 py-1 rounded-full">
+                {medical.conditions.length} indicated
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">
+            Please tap any conditions you currently have or have been diagnosed with:
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {SYSTEMIC_CONDITIONS.map((cond) => {
+              const isSelected = medical.conditions.includes(cond.label);
+              return (
+                <button
+                  key={cond.id}
+                  type="button"
+                  onClick={() => toggleConditionChip(cond.label)}
+                  className={cn(
+                    "p-3 rounded-xl border text-left transition-all active:scale-[0.98] flex items-center justify-between",
+                    isSelected
+                      ? "bg-amber-500/20 border-amber-500 text-white ring-1 ring-amber-500/50 shadow-md shadow-amber-500/10"
+                      : "bg-[#040813] border-[#1b2946] text-slate-300 hover:bg-[#0b1325]"
+                  )}
+                >
+                  <div>
+                    <div className="text-xs sm:text-sm font-bold">{cond.label}</div>
+                    <div className="text-[11px] text-slate-400">{cond.tagalog}</div>
+                  </div>
+                  {isSelected ? (
+                    <span className="text-amber-400 font-bold text-xs">YES</span>
+                  ) : (
+                    <span className="text-slate-600 text-xs">—</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Section 3: Detailed Medications & Allergy Notes */}
+        <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b border-[#1b2946]">
+            <Pill className="size-4 text-blue-400" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              3. Medications &amp; Allergy Specifications
+            </h3>
+          </div>
+
+          {/* Allergy details */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <ShieldAlert className="size-3.5 text-rose-400" />
+              Known Allergies (Food, Penicillin, Local Anesthesia, Latex)
+            </Label>
+            <textarea
+              rows={2}
+              placeholder="e.g. Allergic to Amoxicillin (rashes) and Mefenamic Acid. Leave blank if none."
+              value={medical.allergiesNotes}
+              onChange={(e) =>
+                updateMedicalHistory({ allergiesNotes: e.target.value })
+              }
+              className="w-full rounded-xl bg-[#040813] border border-[#1b2946] p-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500"
+            />
+          </div>
+
+          {/* Current medications */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Pill className="size-3.5 text-blue-400" />
+              Current Maintenance Medications &amp; Daily Tablets
+            </Label>
+            <textarea
+              rows={2}
+              placeholder="e.g. Amlodipine 5mg once daily, Metformin 500mg, Multivitamins. Leave blank if none."
+              value={medical.currentMedications}
+              onChange={(e) =>
+                updateMedicalHistory({ currentMedications: e.target.value })
+              }
+              className="w-full rounded-xl bg-[#040813] border border-[#1b2946] p-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500"
+            />
+          </div>
+
+          {/* Past Surgeries / Hospitalizations */}
+          {(medical.hasIllnessOperation || medical.isHospitalized) && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <Label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                <AlertCircle className="size-3.5 text-amber-400" />
+                Past Surgeries / Hospitalization Details
+              </Label>
+              <textarea
+                rows={2}
+                placeholder="e.g. Appendectomy in 2021, Cesarean section in 2023..."
+                value={medical.pastSurgeries}
+                onChange={(e) =>
+                  updateMedicalHistory({ pastSurgeries: e.target.value })
+                }
+                className="w-full rounded-xl bg-[#040813] border border-amber-500/40 p-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-400 focus-visible:ring-1 focus-visible:ring-amber-400"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Navigation Buttons */}
