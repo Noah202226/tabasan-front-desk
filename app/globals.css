@@ -119,11 +119,42 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+    touch-action: manipulation;
+  }
   body {
-    @apply bg-background text-foreground;
-    }
+    @apply bg-[#060a14] text-slate-100 select-none antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+  input, textarea {
+    user-select: text !important;
+  }
   html {
     @apply font-sans;
-    }
+  }
+}
+
+/* Custom kiosk scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 3s infinite ease-in-out;
 }
