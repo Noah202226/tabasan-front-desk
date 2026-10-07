@@ -127,21 +127,21 @@ export function KioskSettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md bg-[#0b1325] border-[#17233d] text-slate-100 p-6 rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-md bg-white dark:bg-[#0b1325] border-slate-200 dark:border-[#17233d] text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl">
         <DialogHeader>
-          <div className="flex items-center gap-2.5 text-blue-400">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20">
+          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
               {isAuthenticated ? (
-                <Unlock className="size-5 text-blue-400" />
+                <Unlock className="size-5 text-blue-600 dark:text-blue-400" />
               ) : (
-                <Lock className="size-5 text-blue-400" />
+                <Lock className="size-5 text-blue-600 dark:text-blue-400" />
               )}
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold text-white">
+              <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white">
                 {isAuthenticated ? "Kiosk Station Settings" : "Clinic Staff Verification"}
               </DialogTitle>
-              <DialogDescription className="text-xs text-slate-400">
+              <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
                 {isAuthenticated
                   ? "Configure active branch location and manage offline sync queue."
                   : "Enter the receptionist security PIN to configure this tablet."}
@@ -161,15 +161,15 @@ export function KioskSettingsModal({
                     key={i}
                     className={`size-3.5 rounded-full border-2 transition-all ${
                       enteredPin.length > i
-                        ? "bg-blue-500 border-blue-400 shadow-md shadow-blue-500/50 scale-110"
-                        : "border-slate-700 bg-slate-800"
+                        ? "bg-blue-600 border-blue-500 shadow-md shadow-blue-500/40 scale-110"
+                        : "border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
                     }`}
                   />
                 ))}
               </div>
 
               {pinError && (
-                <p className="text-xs font-semibold text-rose-400 flex items-center gap-1.5 animate-bounce mb-2">
+                <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5 animate-bounce mb-2">
                   <AlertCircle className="size-3.5" />
                   Incorrect PIN. Please try again.
                 </p>
@@ -184,7 +184,7 @@ export function KioskSettingsModal({
                   type="button"
                   variant="outline"
                   onClick={() => handleKeypadPress(num)}
-                  className="h-12 text-lg font-bold rounded-xl border-[#1b2946] bg-[#040813] hover:bg-slate-800 text-white active:scale-95 transition-transform"
+                  className="h-12 text-lg font-bold rounded-xl border-slate-200 dark:border-[#1b2946] bg-slate-50 dark:bg-[#040813] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-white active:scale-95 transition-transform"
                 >
                   {num}
                 </Button>
@@ -193,7 +193,7 @@ export function KioskSettingsModal({
                 type="button"
                 variant="ghost"
                 onClick={() => handleKeypadPress("CLEAR")}
-                className="h-12 text-xs font-semibold rounded-xl text-rose-400 hover:bg-rose-950/30"
+                className="h-12 text-xs font-semibold rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
               >
                 CLEAR
               </Button>
@@ -201,7 +201,7 @@ export function KioskSettingsModal({
                 type="button"
                 variant="outline"
                 onClick={() => handleKeypadPress("0")}
-                className="h-12 text-lg font-bold rounded-xl border-[#1b2946] bg-[#040813] hover:bg-slate-800 text-white active:scale-95 transition-transform"
+                className="h-12 text-lg font-bold rounded-xl border-slate-200 dark:border-[#1b2946] bg-slate-50 dark:bg-[#040813] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-white active:scale-95 transition-transform"
               >
                 0
               </Button>
@@ -220,8 +220,8 @@ export function KioskSettingsModal({
           <div className="space-y-5 pt-2">
             {/* Branch Selector */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Building2 className="size-4 text-blue-400" />
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <Building2 className="size-4 text-blue-600 dark:text-blue-400" />
                 Active Tablet Clinic Branch
               </Label>
               <div className="grid gap-2">
@@ -237,24 +237,24 @@ export function KioskSettingsModal({
                       }}
                       className={`flex items-center justify-between p-3 rounded-xl border text-left text-sm transition-all ${
                         isSelected
-                          ? "border-blue-500 bg-blue-950/40 text-blue-200 ring-1 ring-blue-500/50"
-                          : "border-[#1b2946] bg-[#040813] text-slate-300 hover:border-slate-700"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 ring-1 ring-blue-500/50"
+                          : "border-slate-200 dark:border-[#1b2946] bg-slate-50 dark:bg-[#040813] text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
                         <Building2
                           className={`size-4 ${
-                            isSelected ? "text-blue-400" : "text-slate-500"
+                            isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"
                           }`}
                         />
                         <span className="font-medium">{b.name}</span>
                       </div>
                       {isSelected ? (
-                        <CheckCircle2 className="size-4 text-blue-400 shrink-0" />
+                        <CheckCircle2 className="size-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       ) : (
                         <Badge
                           variant="outline"
-                          className="text-[10px] border-slate-700 text-slate-400"
+                          className="text-[10px] border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400"
                         >
                           Select
                         </Badge>
@@ -265,14 +265,14 @@ export function KioskSettingsModal({
               </div>
             </div>
 
-            <Separator className="bg-[#17233d]" />
+            <Separator className="bg-slate-200 dark:bg-[#17233d]" />
 
             {/* Offline Database & Sync Status */}
-            <div className="space-y-3 rounded-xl bg-[#040813] border border-[#17233d] p-3.5">
+            <div className="space-y-3 rounded-xl bg-slate-50 dark:bg-[#040813] border border-slate-200 dark:border-[#17233d] p-3.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Database className="size-4 text-emerald-400" />
-                  <span className="text-xs font-semibold text-slate-200">
+                  <Database className="size-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Offline Queue (Dexie DB)
                   </span>
                 </div>
@@ -284,12 +284,12 @@ export function KioskSettingsModal({
                 </Badge>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
                 <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="size-3.5 text-blue-400" />
+                  <ShieldCheck className="size-3.5 text-blue-600 dark:text-blue-400" />
                   Cached HMO Providers
                 </span>
-                <span className="font-semibold text-slate-200">
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   {hmoProviders.length} active
                 </span>
               </div>
@@ -300,11 +300,11 @@ export function KioskSettingsModal({
                   variant="outline"
                   onClick={handleForceSync}
                   disabled={isSyncing || !isOnline}
-                  className="flex-1 h-9 text-xs border-[#1b2946] bg-[#0b1325] text-slate-200 hover:bg-slate-800"
+                  className="flex-1 h-9 text-xs border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#0b1325] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <RefreshCw
                     className={`size-3.5 mr-1.5 ${
-                      isSyncing ? "animate-spin text-blue-400" : "text-slate-400"
+                      isSyncing ? "animate-spin text-blue-600 dark:text-blue-400" : "text-slate-400"
                     }`}
                   />
                   Force Sync Now
@@ -314,7 +314,7 @@ export function KioskSettingsModal({
                     size="sm"
                     variant="ghost"
                     onClick={handleClearOfflineDB}
-                    className="h-9 text-xs text-rose-400 hover:bg-rose-950/30"
+                    className="h-9 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
@@ -326,7 +326,7 @@ export function KioskSettingsModal({
             <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
-                className="flex-1 h-10 border-[#1b2946] bg-[#040813] text-slate-300"
+                className="flex-1 h-10 border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#040813] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
                 onClick={handleClose}
               >
                 Close

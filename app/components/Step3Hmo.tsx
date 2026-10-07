@@ -142,14 +142,14 @@ export function Step3Hmo() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       <div className="space-y-1 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/60 border border-blue-500/40 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">
-          <Sparkles className="size-3.5 text-blue-400" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/40 text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">
+          <Sparkles className="size-3.5 text-blue-500 dark:text-blue-400" />
           Step 3: Payment &amp; Health Insurance
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           How will you be paying for your visit?
         </h2>
-        <p className="text-xs sm:text-sm text-slate-400">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Choose whether you are self-paying or using HMO / Health Insurance coverage.
         </p>
       </div>
@@ -161,10 +161,10 @@ export function Step3Hmo() {
           type="button"
           onClick={() => updateHmo({ hasHmo: false })}
           className={cn(
-            "p-6 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between select-none relative overflow-hidden",
+            "p-6 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between select-none relative overflow-hidden cursor-pointer",
             !hmo.hasHmo
-              ? "bg-[#0b1325] border-blue-500 ring-2 ring-blue-500/40 shadow-xl shadow-blue-950/50"
-              : "bg-[#070c18]/90 border-[#17233d] text-slate-400 hover:border-slate-700 hover:text-slate-200"
+              ? "bg-white dark:bg-[#0b1325] border-blue-500 ring-2 ring-blue-500/40 shadow-md shadow-blue-500/10"
+              : "bg-slate-50 dark:bg-[#070c18]/90 border-slate-200 dark:border-[#17233d] text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-200"
           )}
         >
           <div className="space-y-3">
@@ -173,7 +173,7 @@ export function Step3Hmo() {
                 "size-12 rounded-xl flex items-center justify-center transition-colors",
                 !hmo.hasHmo
                   ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
-                  : "bg-slate-800 text-slate-400"
+                  : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
               )}
             >
               <Wallet className="size-6" />
@@ -182,12 +182,12 @@ export function Step3Hmo() {
               <h3
                 className={cn(
                   "text-lg font-bold transition-colors",
-                  !hmo.hasHmo ? "text-white" : "text-slate-300"
+                  !hmo.hasHmo ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"
                 )}
               >
                 Self-Pay / Private
               </h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                 Cash, GCash, Maya, Debit, or Credit Card payments handled directly at the reception counter.
               </p>
             </div>
@@ -195,11 +195,11 @@ export function Step3Hmo() {
 
           <div className="pt-4 flex items-center gap-1.5 text-xs font-semibold">
             {!hmo.hasHmo ? (
-              <span className="text-blue-400 flex items-center gap-1">
+              <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1">
                 <CheckCircle2 className="size-4" /> Selected Option
               </span>
             ) : (
-              <span className="text-slate-500">Tap to select</span>
+              <span className="text-slate-400 dark:text-slate-500">Tap to select</span>
             )}
           </div>
         </button>
@@ -209,10 +209,10 @@ export function Step3Hmo() {
           type="button"
           onClick={() => updateHmo({ hasHmo: true })}
           className={cn(
-            "p-6 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between select-none relative overflow-hidden",
+            "p-6 rounded-2xl border text-left transition-all active:scale-[0.98] flex flex-col justify-between select-none relative overflow-hidden cursor-pointer",
             hmo.hasHmo
-              ? "bg-[#0b1325] border-blue-500 ring-2 ring-blue-500/40 shadow-xl shadow-blue-950/50"
-              : "bg-[#070c18]/90 border-[#17233d] text-slate-400 hover:border-slate-700 hover:text-slate-200"
+              ? "bg-white dark:bg-[#0b1325] border-blue-500 ring-2 ring-blue-500/40 shadow-md shadow-blue-500/10"
+              : "bg-slate-50 dark:bg-[#070c18]/90 border-slate-200 dark:border-[#17233d] text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-200"
           )}
         >
           <div className="space-y-3">
@@ -221,7 +221,7 @@ export function Step3Hmo() {
                 "size-12 rounded-xl flex items-center justify-center transition-colors",
                 hmo.hasHmo
                   ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
-                  : "bg-slate-800 text-slate-400"
+                  : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
               )}
             >
               <ShieldCheck className="size-6" />
@@ -230,12 +230,12 @@ export function Step3Hmo() {
               <h3
                 className={cn(
                   "text-lg font-bold transition-colors",
-                  hmo.hasHmo ? "text-white" : "text-slate-300"
+                  hmo.hasHmo ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"
                 )}
               >
                 HMO / Health Insurance
               </h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                 Accredited insurance benefits: Maxicare, Intellicare, Medicard, PhilCare, Etiqa, Avega, etc.
               </p>
             </div>
@@ -243,11 +243,11 @@ export function Step3Hmo() {
 
           <div className="pt-4 flex items-center gap-1.5 text-xs font-semibold">
             {hmo.hasHmo ? (
-              <span className="text-blue-400 flex items-center gap-1">
+              <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1">
                 <CheckCircle2 className="size-4" /> Selected Option
               </span>
             ) : (
-              <span className="text-slate-500">Tap to select</span>
+              <span className="text-slate-400 dark:text-slate-500">Tap to select</span>
             )}
           </div>
         </button>
@@ -255,21 +255,21 @@ export function Step3Hmo() {
 
       {/* Expanded HMO Details Form if HMO selected */}
       {hmo.hasHmo && (
-        <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="rounded-2xl border border-slate-200 dark:border-[#17233d] bg-white dark:bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="size-5 text-blue-400" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="size-5 text-blue-500 dark:text-blue-400" />
               HMO Provider &amp; Coverage Details
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Select your accredited insurance provider and enter cardholder information.
             </p>
           </div>
 
           {/* HMO Provider Selection Chips */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-300">
-              Select HMO Provider <span className="text-blue-400">*</span>
+            <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Select HMO Provider <span className="text-blue-500 dark:text-blue-400">*</span>
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
               {hmoProviders.map((provider) => {
@@ -288,10 +288,10 @@ export function Step3Hmo() {
                       })
                     }
                     className={cn(
-                      "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
+                      "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center cursor-pointer",
                       isSelected
-                        ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30"
-                        : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
+                        ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                        : "bg-slate-50 dark:bg-[#040813] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#1b2946] hover:bg-slate-100 dark:hover:bg-[#0b1325]"
                     )}
                   >
                     {provider.name}
@@ -311,10 +311,10 @@ export function Step3Hmo() {
                   })
                 }
                 className={cn(
-                  "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
+                  "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center cursor-pointer",
                   hmo.providerType === "custom"
-                    ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30"
-                    : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
+                    ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                    : "bg-slate-50 dark:bg-[#040813] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#1b2946] hover:bg-slate-100 dark:hover:bg-[#0b1325]"
                 )}
               >
                 Other HMO
@@ -325,40 +325,40 @@ export function Step3Hmo() {
           {/* Custom Provider Name Input if Other HMO */}
           {hmo.providerType === "custom" && (
             <div className="space-y-2 animate-in fade-in duration-200">
-              <Label className="text-xs font-semibold text-slate-300">
-                Specify HMO / Insurance Company Name <span className="text-blue-400">*</span>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Specify HMO / Insurance Company Name <span className="text-blue-500 dark:text-blue-400">*</span>
               </Label>
               <Input
                 required
                 placeholder="e.g. Asalus / Lacson & Lacson"
                 value={hmo.providerName}
                 onChange={(e) => updateHmo({ providerName: e.target.value })}
-                className="h-12 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
+                className="h-12 bg-slate-50 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
               />
             </div>
           )}
 
           {/* Member Card Number */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-300">
-              HMO Member / Policy / Card Number <span className="text-blue-400">*</span>
+            <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              HMO Member / Policy / Card Number <span className="text-blue-500 dark:text-blue-400">*</span>
             </Label>
             <div className="relative">
-              <CreditCard className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+              <CreditCard className="absolute left-3.5 top-3.5 size-4 text-slate-400 dark:text-slate-500" />
               <Input
                 required
                 placeholder="e.g. 1122-3344-5566-7788"
                 value={hmo.memberNumber}
                 onChange={(e) => updateHmo({ memberNumber: e.target.value })}
-                className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
+                className="h-12 pl-10 bg-slate-50 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
               />
             </div>
           </div>
 
           {/* Cardholder Relationship */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-300">
-              Cardholder Membership Status <span className="text-blue-400">*</span>
+            <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Cardholder Membership Status <span className="text-blue-500 dark:text-blue-400">*</span>
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {HMO_RELATIONSHIPS.map((rel) => {
@@ -369,10 +369,10 @@ export function Step3Hmo() {
                     type="button"
                     onClick={() => updateHmo({ relationship: rel.id })}
                     className={cn(
-                      "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center",
+                      "h-11 px-3 rounded-xl text-xs font-semibold border transition-all active:scale-95 text-center flex items-center justify-center cursor-pointer",
                       isSelected
-                        ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30 font-bold"
-                        : "bg-[#040813] text-slate-300 border-[#1b2946] hover:bg-[#0b1325]"
+                        ? "bg-blue-600 text-white border-blue-500 shadow-sm font-bold"
+                        : "bg-slate-50 dark:bg-[#040813] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#1b2946] hover:bg-slate-100 dark:hover:bg-[#0b1325]"
                     )}
                   >
                     {rel.label}
@@ -385,11 +385,11 @@ export function Step3Hmo() {
           {/* Principal Cardholder Name (Required if Dependent) */}
           {isPrincipalRequired && (
             <div className="space-y-2 animate-in fade-in duration-200">
-              <Label className="text-xs font-semibold text-slate-300">
-                Principal Member Full Name <span className="text-blue-400">*</span>
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Principal Member Full Name <span className="text-blue-500 dark:text-blue-400">*</span>
               </Label>
               <div className="relative">
-                <User className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <User className="absolute left-3.5 top-3.5 size-4 text-slate-400 dark:text-slate-500" />
                 <Input
                   required
                   placeholder="e.g. Roberto Dela Cruz (Company Employee)"
@@ -397,10 +397,10 @@ export function Step3Hmo() {
                   onChange={(e) =>
                     updateHmo({ principalName: e.target.value })
                   }
-                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
+                  className="h-12 pl-10 bg-slate-50 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-500 text-base"
                 />
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 The primary employee or subscriber holding the HMO policy.
               </p>
             </div>
@@ -409,31 +409,31 @@ export function Step3Hmo() {
           {/* Card Validity Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-300">
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Valid From (Optional)
               </Label>
               <div className="relative">
-                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-400 dark:text-slate-500" />
                 <Input
                   type="date"
                   value={hmo.validFrom}
                   onChange={(e) => updateHmo({ validFrom: e.target.value })}
-                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white text-base"
+                  className="h-12 pl-10 bg-slate-50 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-900 dark:text-white text-base"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-300">
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Valid Until / Expiration (Optional)
               </Label>
               <div className="relative">
-                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-500" />
+                <Calendar className="absolute left-3.5 top-3.5 size-4 text-slate-400 dark:text-slate-500" />
                 <Input
                   type="date"
                   value={hmo.validUntil}
                   onChange={(e) => updateHmo({ validUntil: e.target.value })}
-                  className="h-12 pl-10 bg-[#040813] border-[#1b2946] text-white text-base"
+                  className="h-12 pl-10 bg-slate-50 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-900 dark:text-white text-base"
                 />
               </div>
             </div>
@@ -442,13 +442,13 @@ export function Step3Hmo() {
           {/* Dual-Side Card Photo Capture / Upload */}
           <div className="space-y-4 pt-2">
             <div>
-              <Label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+              <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                 <span>HMO Physical Card Photos</span>
-                <span className="text-slate-400 font-normal">
+                <span className="text-slate-500 dark:text-slate-400 font-normal">
                   Optional but accelerates reception approval
                 </span>
               </Label>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Front and back captures are automatically compressed to ensure instant sync.
               </p>
             </div>
@@ -492,26 +492,26 @@ export function Step3Hmo() {
             )}
 
             {cameraError && (
-              <p className="text-xs text-amber-400 mt-1">{cameraError}</p>
+              <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">{cameraError}</p>
             )}
 
             {/* Dual Cards: Front and Back */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Card Front */}
-              <div className="rounded-xl border border-[#1b2946] bg-[#040813] p-3.5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+              <div className="rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-50/70 dark:bg-[#040813] p-3.5 space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
                   <span className="flex items-center gap-1.5">
-                    <CreditCard className="size-3.5 text-blue-400" /> Card Front
+                    <CreditCard className="size-3.5 text-blue-500 dark:text-blue-400" /> Card Front
                   </span>
                   {hmo.cardFront && (
-                    <span className="text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
+                    <span className="text-emerald-600 dark:text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
                       <CheckCircle2 className="size-3" /> Attached
                     </span>
                   )}
                 </div>
 
                 {hmo.cardFront ? (
-                  <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                  <div className="relative rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700">
                     <img
                       src={hmo.cardFront}
                       alt="Card Front"
@@ -520,7 +520,7 @@ export function Step3Hmo() {
                     <button
                       type="button"
                       onClick={() => updateHmo({ cardFront: "" })}
-                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40"
+                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40 cursor-pointer"
                     >
                       Remove
                     </button>
@@ -532,9 +532,9 @@ export function Step3Hmo() {
                       variant="outline"
                       size="sm"
                       onClick={() => startCamera("front")}
-                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-blue-300 hover:bg-[#0f1b34]"
+                      className="flex-1 h-10 text-xs border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#080f1e] text-blue-600 dark:text-blue-300 hover:bg-slate-100 dark:hover:bg-[#0f1b34]"
                     >
-                      <Camera className="size-3.5 mr-1 text-blue-400" />
+                      <Camera className="size-3.5 mr-1 text-blue-500 dark:text-blue-400" />
                       Take Photo
                     </Button>
                     <input
@@ -549,7 +549,7 @@ export function Step3Hmo() {
                       variant="outline"
                       size="sm"
                       onClick={() => frontInputRef.current?.click()}
-                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-slate-300 hover:bg-[#0f1b34]"
+                      className="flex-1 h-10 text-xs border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#080f1e] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#0f1b34]"
                     >
                       <ImageIcon className="size-3.5 mr-1" />
                       Upload
@@ -559,20 +559,20 @@ export function Step3Hmo() {
               </div>
 
               {/* Card Back */}
-              <div className="rounded-xl border border-[#1b2946] bg-[#040813] p-3.5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+              <div className="rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-50/70 dark:bg-[#040813] p-3.5 space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
                   <span className="flex items-center gap-1.5">
-                    <CreditCard className="size-3.5 text-blue-400" /> Card Back
+                    <CreditCard className="size-3.5 text-blue-500 dark:text-blue-400" /> Card Back
                   </span>
                   {hmo.cardBack && (
-                    <span className="text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
+                    <span className="text-emerald-600 dark:text-emerald-400 text-[11px] flex items-center gap-1 font-bold">
                       <CheckCircle2 className="size-3" /> Attached
                     </span>
                   )}
                 </div>
 
                 {hmo.cardBack ? (
-                  <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                  <div className="relative rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700">
                     <img
                       src={hmo.cardBack}
                       alt="Card Back"
@@ -581,7 +581,7 @@ export function Step3Hmo() {
                     <button
                       type="button"
                       onClick={() => updateHmo({ cardBack: "" })}
-                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40"
+                      className="absolute top-1.5 right-1.5 px-2 py-1 rounded bg-black/80 text-[10px] text-rose-400 hover:text-white border border-rose-500/40 cursor-pointer"
                     >
                       Remove
                     </button>
@@ -593,9 +593,9 @@ export function Step3Hmo() {
                       variant="outline"
                       size="sm"
                       onClick={() => startCamera("back")}
-                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-blue-300 hover:bg-[#0f1b34]"
+                      className="flex-1 h-10 text-xs border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#080f1e] text-blue-600 dark:text-blue-300 hover:bg-slate-100 dark:hover:bg-[#0f1b34]"
                     >
-                      <Camera className="size-3.5 mr-1 text-blue-400" />
+                      <Camera className="size-3.5 mr-1 text-blue-500 dark:text-blue-400" />
                       Take Photo
                     </Button>
                     <input
@@ -610,7 +610,7 @@ export function Step3Hmo() {
                       variant="outline"
                       size="sm"
                       onClick={() => backInputRef.current?.click()}
-                      className="flex-1 h-10 text-xs border-[#1b2946] bg-[#080f1e] text-slate-300 hover:bg-[#0f1b34]"
+                      className="flex-1 h-10 text-xs border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#080f1e] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#0f1b34]"
                     >
                       <ImageIcon className="size-3.5 mr-1" />
                       Upload
@@ -629,7 +629,7 @@ export function Step3Hmo() {
           type="button"
           variant="outline"
           onClick={prevStep}
-          className="h-12 px-6 text-sm font-semibold border-[#1b2946] bg-[#0b1325] text-slate-300 hover:text-white"
+          className="h-12 px-6 text-sm font-semibold border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#0b1325] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
         >
           <ArrowLeft className="size-4 mr-2" />
           Back

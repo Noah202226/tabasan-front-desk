@@ -23,7 +23,7 @@ export function KioskProgressBar() {
     <div className="w-full px-2 py-3 sm:py-4">
       <div className="relative">
         {/* Track Line Background */}
-        <div className="absolute top-5 left-8 right-8 h-1 bg-[#141f36] rounded-full -z-0" />
+        <div className="absolute top-5 left-8 right-8 h-1 bg-slate-200 dark:bg-[#141f36] rounded-full -z-0" />
 
         {/* Active Progress Fill */}
         <div
@@ -49,12 +49,12 @@ export function KioskProgressBar() {
                   className={cn(
                     "flex items-center justify-center size-10 sm:size-11 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 ring-4 select-none",
                     isCompleted &&
-                      "bg-gradient-to-br from-emerald-500 to-teal-600 text-white ring-emerald-950/60 shadow-lg shadow-emerald-500/20",
+                      "bg-gradient-to-br from-emerald-500 to-teal-600 text-white ring-emerald-200 dark:ring-emerald-950/60 shadow-lg shadow-emerald-500/20",
                     isCurrent &&
-                      "bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-700 text-white ring-blue-500/40 scale-110 shadow-xl shadow-indigo-600/40",
+                      "bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-700 text-white ring-blue-300 dark:ring-blue-500/40 scale-110 shadow-xl shadow-indigo-600/40",
                     !isCompleted &&
                       !isCurrent &&
-                      "bg-[#0b1325] border border-[#1b2946] text-slate-500 ring-black/40"
+                      "bg-white dark:bg-[#0b1325] border border-slate-200 dark:border-[#1b2946] text-slate-400 dark:text-slate-500 ring-slate-100 dark:ring-black/40 shadow-sm"
                   )}
                 >
                   {isCompleted ? (
@@ -68,15 +68,15 @@ export function KioskProgressBar() {
                   <p
                     className={cn(
                       "text-[11px] sm:text-xs font-semibold tracking-wide transition-colors",
-                      isCurrent && "text-blue-400 font-bold",
-                      isCompleted && "text-emerald-400",
-                      !isCurrent && !isCompleted && "text-slate-400"
+                      isCurrent && "text-blue-600 dark:text-blue-400 font-bold",
+                      isCompleted && "text-emerald-600 dark:text-emerald-400",
+                      !isCurrent && !isCompleted && "text-slate-500 dark:text-slate-400"
                     )}
                   >
                     <span className="sm:hidden">{s.label}</span>
                     <span className="hidden sm:inline">{s.fullLabel}</span>
                   </p>
-                  <span className="text-[10px] text-slate-400 hidden md:block">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden md:block">
                     Step {s.step} of 5
                   </span>
                 </div>

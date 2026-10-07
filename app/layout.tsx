@@ -50,24 +50,15 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("dark antialiased", fontMono.variable, "font-sans", inter.variable)}
+      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
-      <body className="min-h-screen bg-[#060a14] text-slate-100 flex flex-col antialiased selection:bg-blue-500/30 selection:text-blue-200">
+      <body className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-blue-500/30 selection:text-blue-600 dark:selection:text-blue-200">
         <ThemeProvider>
           {children}
           <Toaster
             position="top-right"
-            theme="dark"
             richColors
             closeButton
-            toastOptions={{
-              style: {
-                background: "rgba(15, 23, 42, 0.95)",
-                border: "1px solid rgba(51, 65, 85, 0.8)",
-                backdropFilter: "blur(12px)",
-                color: "#f8fafc",
-              },
-            }}
           />
         </ThemeProvider>
       </body>

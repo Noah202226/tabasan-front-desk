@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { useKioskStore } from "@/app/store/kiosk-store";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,6 +28,7 @@ export function Step5Consent() {
     isSubmitting,
   } = useKioskStore();
 
+  const { resolvedTheme } = useTheme();
   const consent = formData.consent;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [hasSignature, setHasSignature] = useState(Boolean(consent.signature));
@@ -43,7 +45,7 @@ export function Step5Consent() {
     canvas.width = rect.width * 2;
     canvas.height = rect.height * 2;
     ctx.scale(2, 2);
-    ctx.strokeStyle = "#60a5fa"; // blue-400
+    ctx.strokeStyle = resolvedTheme === "dark" ? "#60a5fa" : "#1d4ed8"; // bright blue for dark, royal blue for light
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -57,7 +59,7 @@ export function Step5Consent() {
         setHasSignature(true);
       };
     }
-  }, [consent.signature]);
+  }, [consent.signature, resolvedTheme]);
 
   const getPos = (
     e:
@@ -150,41 +152,41 @@ export function Step5Consent() {
   return (
     <form onSubmit={handleFinalSubmit} className="space-y-6 max-w-4xl mx-auto">
       <div className="space-y-1 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/60 border border-blue-500/40 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">
-          <Sparkles className="size-3.5 text-blue-400" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/40 text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">
+          <Sparkles className="size-3.5 text-blue-600 dark:text-blue-400" />
           Step 5: Consent &amp; Signature
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           Data Privacy &amp; Treatment Consent
         </h2>
-        <p className="text-xs sm:text-sm text-slate-400">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
           Review the consent terms and sign using your finger or stylus below.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-[#17233d] bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-6">
+      <div className="rounded-2xl border border-slate-200 dark:border-[#17233d] bg-white dark:bg-[#070c18]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl space-y-6">
         {/* Scrollable Legal Consent Box */}
         <div className="space-y-2">
-          <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-            <Lock className="size-3.5 text-blue-400" />
+          <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Lock className="size-3.5 text-blue-600 dark:text-blue-400" />
             Republic Act No. 10173 &amp; Clinic Treatment Agreement
           </Label>
-          <div className="rounded-xl border border-[#1b2946] bg-[#040813] p-4 text-xs text-slate-400 leading-relaxed max-h-44 overflow-y-auto space-y-2.5">
+          <div className="rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-50/70 dark:bg-[#040813] p-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-h-44 overflow-y-auto space-y-2.5">
             <p>
-              <strong className="text-slate-200">1. Data Privacy Compliance (RA 10173):</strong> In
+              <strong className="text-slate-900 dark:text-slate-200">1. Data Privacy Compliance (RA 10173):</strong> In
               accordance with the Philippine Data Privacy Act of 2012, Tabasan Dental Clinic collects
               and processes your personal and health records solely for diagnostic examination,
               treatment planning, insurance verification, and continuity of dental healthcare. Your
               records are kept strictly confidential and protected by clinic encryption protocols.
             </p>
             <p>
-              <strong className="text-slate-200">2. Truthful Health Disclosure:</strong> You certify
+              <strong className="text-slate-900 dark:text-slate-200">2. Truthful Health Disclosure:</strong> You certify
               that the personal demographics, medical history, systemic conditions, and current medications provided in this
               self-service intake are true and accurate. Withholding health information may compromise
               anesthetic safety and clinical outcomes.
             </p>
             <p>
-              <strong className="text-slate-200">3. Examination &amp; X-Ray Consent:</strong> You authorize our
+              <strong className="text-slate-900 dark:text-slate-200">3. Examination &amp; X-Ray Consent:</strong> You authorize our
               licensed dentists and clinical hygienists to conduct an oral examination, necessary dental
               radiographs (digital X-rays), and discuss treatment options with you prior to performing any
               procedure.
@@ -200,22 +202,22 @@ export function Step5Consent() {
           className={cn(
             "flex items-start gap-3 p-4 rounded-xl border cursor-pointer select-none transition-all active:scale-[0.99]",
             consent.agreedToTerms
-              ? "bg-blue-950/40 border-blue-500/80 text-white ring-1 ring-blue-500/40"
-              : "bg-[#040813] border-[#1b2946] text-slate-300 hover:border-slate-700"
+              ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-950 dark:text-white ring-1 ring-blue-500/40"
+              : "bg-slate-50/70 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
           )}
         >
           <div
             className={cn(
               "size-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border transition-colors",
               consent.agreedToTerms
-                ? "bg-blue-600 border-blue-400 text-white shadow-sm"
-                : "border-[#1b2946] bg-[#0b1325]"
+                ? "bg-blue-600 border-blue-500 text-white shadow-sm"
+                : "border-slate-300 dark:border-[#1b2946] bg-white dark:bg-[#0b1325]"
             )}
           >
             {consent.agreedToTerms && <Check className="size-4 stroke-[3]" />}
           </div>
           <div className="text-xs sm:text-sm leading-relaxed">
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-slate-900 dark:text-white">
               I confirm that all personal and health information provided is truthful and accurate
             </span>{" "}
             to the best of my knowledge.
@@ -232,22 +234,22 @@ export function Step5Consent() {
           className={cn(
             "flex items-start gap-3 p-4 rounded-xl border cursor-pointer select-none transition-all active:scale-[0.99]",
             consent.dataPrivacyConsent
-              ? "bg-blue-950/40 border-blue-500/80 text-white ring-1 ring-blue-500/40"
-              : "bg-[#040813] border-[#1b2946] text-slate-300 hover:border-slate-700"
+              ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-950 dark:text-white ring-1 ring-blue-500/40"
+              : "bg-slate-50/70 dark:bg-[#040813] border-slate-200 dark:border-[#1b2946] text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
           )}
         >
           <div
             className={cn(
               "size-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border transition-colors",
               consent.dataPrivacyConsent
-                ? "bg-blue-600 border-blue-400 text-white shadow-sm"
-                : "border-[#1b2946] bg-[#0b1325]"
+                ? "bg-blue-600 border-blue-500 text-white shadow-sm"
+                : "border-slate-300 dark:border-[#1b2946] bg-white dark:bg-[#0b1325]"
             )}
           >
             {consent.dataPrivacyConsent && <Check className="size-4 stroke-[3]" />}
           </div>
           <div className="text-xs sm:text-sm leading-relaxed">
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-slate-900 dark:text-white">
               I give my explicit consent to Tabasan Dental Clinic
             </span>{" "}
             to collect and process my health data in accordance with Republic Act No. 10173 for dental treatment and clinic record keeping.
@@ -257,18 +259,18 @@ export function Step5Consent() {
         {/* Touch Signature Pad */}
         <div className="space-y-2 pt-2">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <PenLine className="size-4 text-blue-400" />
-              Patient or Legal Guardian Signature <span className="text-blue-400">*</span>
+            <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <PenLine className="size-4 text-blue-600 dark:text-blue-400" />
+              Patient or Legal Guardian Signature <span className="text-blue-600 dark:text-blue-400">*</span>
             </Label>
             {hasSignature && (
-              <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="size-3.5" /> Signature Recorded
               </span>
             )}
           </div>
 
-          <div className="relative rounded-2xl border-2 border-dashed border-[#1b2946] bg-[#040813] overflow-hidden touch-none">
+          <div className="relative rounded-2xl border-2 border-dashed border-slate-300 dark:border-[#1b2946] bg-slate-50/80 dark:bg-[#040813] overflow-hidden touch-none transition-colors">
             <canvas
               ref={canvasRef}
               onMouseDown={startDrawing}
@@ -282,7 +284,7 @@ export function Step5Consent() {
             />
 
             {!hasSignature && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-600 font-medium text-sm select-none">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-400 dark:text-slate-600 font-medium text-sm select-none">
                 Draw Your Signature Here (Finger or Stylus)
               </div>
             )}
@@ -293,14 +295,14 @@ export function Step5Consent() {
                 variant="ghost"
                 size="sm"
                 onClick={clearSignature}
-                className="absolute top-2 right-2 h-8 text-xs bg-[#0b1325] border border-[#1b2946] text-slate-400 hover:text-white"
+                className="absolute top-2 right-2 h-8 text-xs bg-white dark:bg-[#0b1325] border border-slate-200 dark:border-[#1b2946] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-sm"
               >
                 <RotateCcw className="size-3 mr-1" />
                 Clear
               </Button>
             )}
           </div>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
             By signing above, you confirm you are the patient or legal guardian of the patient.
           </p>
         </div>
@@ -313,7 +315,7 @@ export function Step5Consent() {
           variant="outline"
           onClick={prevStep}
           disabled={isSubmitting}
-          className="h-12 px-6 text-sm font-semibold border-[#1b2946] bg-[#0b1325] text-slate-300 hover:text-white"
+          className="h-12 px-6 text-sm font-semibold border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#0b1325] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
         >
           <ArrowLeft className="size-4 mr-2" />
           Back

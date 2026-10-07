@@ -42,10 +42,10 @@ export default function KioskPage() {
   }, [initKiosk, setIsOnline, drainOfflineQueue]);
 
   return (
-    <div className="relative min-h-screen bg-[#060a14] text-slate-100 flex flex-col overflow-x-hidden font-sans">
+    <div className="relative min-h-screen bg-slate-50 dark:bg-[#060a14] text-slate-900 dark:text-slate-100 flex flex-col overflow-x-hidden font-sans transition-colors duration-200">
       {/* Ambient Radial Glow Gradients */}
-      <div className="fixed -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-blue-600/10 via-indigo-600/5 to-transparent blur-3xl pointer-events-none -z-0" />
-      <div className="fixed bottom-0 right-0 w-[500px] h-[300px] bg-gradient-to-t from-indigo-600/10 to-transparent blur-3xl pointer-events-none -z-0" />
+      <div className="fixed -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 via-indigo-500/5 dark:via-indigo-600/5 to-transparent blur-3xl pointer-events-none -z-0" />
+      <div className="fixed bottom-0 right-0 w-[500px] h-[300px] bg-gradient-to-t from-indigo-500/10 dark:from-indigo-600/10 to-transparent blur-3xl pointer-events-none -z-0" />
 
       {/* Top Clinic Header */}
       <KioskHeader />
@@ -67,7 +67,7 @@ export default function KioskPage() {
       </main>
 
       {/* Minimal Clinic Footer */}
-      <footer className="relative z-10 border-t border-[#17233d] bg-[#070c18]/80 py-3.5 text-center text-xs text-slate-400">
+      <footer className="relative z-10 border-t border-slate-200 dark:border-[#17233d] bg-white/80 dark:bg-[#070c18]/80 py-3.5 text-center text-xs text-slate-500 dark:text-slate-400 backdrop-blur-md transition-colors">
         <p>
           Tabasan Dental Clinic &copy; {new Date().getFullYear()} &bull; Patient Self-Service Kiosk &bull; Powered by Dexie Offline &amp; Appwrite
         </p>

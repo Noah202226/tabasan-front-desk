@@ -27,7 +27,7 @@ export interface PersonalInfo {
   firstName: string;
   middleName: string;
   lastName: string;
-  gender: "Male" | "Female" | "Other" | "";
+  gender: "Male" | "Female" | "";
   birthDate: string; // YYYY-MM-DD
   age: number | null;
   contactNumber: string;

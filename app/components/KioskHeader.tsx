@@ -74,7 +74,7 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
 
   return (
     <>
-      <header className="w-full border-b border-[#17233d] bg-[#070b16]/95 backdrop-blur-xl px-4 sm:px-8 py-3 sticky top-0 z-40 flex items-center justify-between shadow-lg shadow-black/40">
+      <header className="w-full border-b border-slate-200 dark:border-[#17233d] bg-white/95 dark:bg-[#070b16]/95 backdrop-blur-xl px-4 sm:px-8 py-3 sticky top-0 z-40 flex items-center justify-between shadow-sm dark:shadow-lg dark:shadow-black/40 transition-colors">
         {/* Left Side: Clinic Branding & Status Badge */}
         <div className="flex items-center gap-3.5">
           <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
@@ -83,23 +83,23 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
 
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 Tabasan Dental Clinic
               </h1>
-              <span className="hidden sm:inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-500/40">
+              <span className="hidden sm:inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/40">
                 Self-Service Kiosk
               </span>
             </div>
-            <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-              <MapPin className="size-3 text-blue-400 shrink-0" />
-              <span className="font-medium text-slate-300 truncate max-w-[200px] sm:max-w-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <MapPin className="size-3 text-blue-500 dark:text-blue-400 shrink-0" />
+              <span className="font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px] sm:max-w-xs">
                 {branchName || "Main Clinic"}
               </span>
             </p>
           </div>
 
           {/* Online/Offline Status Pill */}
-          <div className="hidden md:flex items-center gap-1.5 ml-2 px-3 py-1 rounded-full bg-[#051a14] border border-emerald-500/40 text-emerald-400 text-xs font-semibold shadow-sm">
+          <div className="hidden md:flex items-center gap-1.5 ml-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-[#051a14] border border-emerald-200 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold shadow-sm">
             <span className="relative flex size-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
@@ -108,7 +108,7 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
               {isOnline ? "Cloud Synced" : "Offline Mode"}
             </span>
             {offlineQueueCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-amber-500/30 text-amber-300 text-[10px] border border-amber-500/40 ml-1">
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] border border-amber-500/40 ml-1">
                 {offlineQueueCount} Queued
               </span>
             )}
@@ -118,26 +118,26 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
         {/* Right Side: Live Date, Live Time, Actions */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Today's Date Widget */}
-          <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-[#1b2946] bg-[#0b1325]/90">
-            <Calendar className="size-4 text-blue-400 shrink-0" />
+          <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-100/90 dark:bg-[#0b1325]/90">
+            <Calendar className="size-4 text-blue-500 dark:text-blue-400 shrink-0" />
             <div className="flex flex-col text-left">
-              <span className="text-[9px] font-extrabold tracking-wider text-slate-400 uppercase leading-none">
+              <span className="text-[9px] font-extrabold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-none">
                 TODAY&apos;S DATE
               </span>
-              <span className="text-xs font-bold text-slate-200 mt-0.5 leading-none">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 leading-none">
                 {mounted ? currentDate || "September 30, 2026" : "Loading..."}
               </span>
             </div>
           </div>
 
           {/* Current Time Widget with live seconds */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-[#1b2946] bg-[#0b1325]/90">
-            <Clock className="size-4 text-indigo-400 shrink-0" />
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-100/90 dark:bg-[#0b1325]/90">
+            <Clock className="size-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
             <div className="flex flex-col text-left">
-              <span className="text-[9px] font-extrabold tracking-wider text-slate-400 uppercase leading-none">
+              <span className="text-[9px] font-extrabold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-none">
                 CURRENT TIME
               </span>
-              <span className="text-xs font-mono font-bold text-white mt-0.5 leading-none tracking-wide">
+              <span className="text-xs font-mono font-bold text-slate-900 dark:text-white mt-0.5 leading-none tracking-wide">
                 {mounted ? currentTime || "8:37:55 AM" : "--:--:--"}
               </span>
             </div>
@@ -147,13 +147,13 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
           <button
             type="button"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="hidden sm:flex size-9 items-center justify-center rounded-xl border border-[#1b2946] bg-[#0b1325] text-slate-300 hover:text-white hover:border-blue-500/40 hover:bg-[#101b33] transition-all"
+            className="hidden sm:flex size-9 items-center justify-center rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#0b1325] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-blue-400 dark:hover:border-blue-500/40 hover:bg-slate-200 dark:hover:bg-[#101b33] transition-all cursor-pointer"
             title="Toggle Theme"
           >
             {mounted && resolvedTheme === "dark" ? (
               <Sun className="size-4 text-amber-400" />
             ) : (
-              <Moon className="size-4 text-blue-400" />
+              <Moon className="size-4 text-blue-500" />
             )}
           </button>
 
@@ -163,9 +163,9 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
               variant="outline"
               size="sm"
               onClick={() => setResetConfirmOpen(true)}
-              className="text-xs h-9 border-[#1b2946] bg-[#0b1325] hover:bg-slate-800 text-slate-300 hover:text-white"
+              className="text-xs h-9 border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#0b1325] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
-              <RotateCcw className="size-3.5 mr-1 text-slate-400" />
+              <RotateCcw className="size-3.5 mr-1 text-slate-500 dark:text-slate-400" />
               <span className="hidden md:inline">Start Over</span>
             </Button>
           )}
@@ -174,7 +174,7 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
           <button
             type="button"
             onClick={handleSettingsClick}
-            className="flex size-9 items-center justify-center rounded-xl border border-[#1b2946] bg-[#0b1325] text-slate-400 hover:text-blue-400 hover:border-blue-500/40 hover:bg-[#101b33] transition-all"
+            className="flex size-9 items-center justify-center rounded-xl border border-slate-200 dark:border-[#1b2946] bg-slate-100 dark:bg-[#0b1325] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-400 dark:hover:border-blue-500/40 hover:bg-slate-200 dark:hover:bg-[#101b33] transition-all cursor-pointer"
             title="Clinic Staff Settings (PIN Required)"
           >
             <Lock className="size-4" />
@@ -190,21 +190,21 @@ export function KioskHeader({ onOpenSettings }: KioskHeaderProps) {
 
       {/* Start Over Confirmation Modal */}
       {resetConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-2xl border border-[#1b2946] bg-[#0b1325] p-6 shadow-2xl text-center space-y-4">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-sm rounded-2xl border border-slate-200 dark:border-[#1b2946] bg-white dark:bg-[#0b1325] p-6 shadow-2xl text-center space-y-4">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 dark:text-amber-400 ring-1 ring-amber-500/30">
               <ShieldAlert className="size-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Start Over?</h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Start Over?</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 This will clear all filled information and return to the first check-in screen.
               </p>
             </div>
             <div className="flex gap-2.5 pt-2">
               <Button
                 variant="outline"
-                className="flex-1 h-11 border-slate-700 bg-slate-800/50 text-slate-300"
+                className="flex-1 h-11 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
                 onClick={() => setResetConfirmOpen(false)}
               >
                 Continue Intake
