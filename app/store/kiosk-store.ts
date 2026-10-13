@@ -73,11 +73,15 @@ export interface VisitReason {
 export interface MedicalHistory {
   isGoodHealth: boolean;
   isUnderTreatment: boolean;
+  treatmentDetails: string;
   hasIllnessOperation: boolean;
   isHospitalized: boolean;
+  hospitalizationDetails: string;
   isTakingMeds: boolean;
   usesTobacco: boolean;
+  smokingLevel: string;
   drinksAlcohol: boolean;
+  drinkingLevel: string;
   usesDrugs: boolean;
   hasAllergies: boolean;
   isPregnant: boolean;
@@ -173,11 +177,15 @@ export const INITIAL_FORM_DATA: KioskFormData = {
   medicalHistory: {
     isGoodHealth: true,
     isUnderTreatment: false,
+    treatmentDetails: "",
     hasIllnessOperation: false,
     isHospitalized: false,
+    hospitalizationDetails: "",
     isTakingMeds: false,
     usesTobacco: false,
+    smokingLevel: "",
     drinksAlcohol: false,
+    drinkingLevel: "",
     usesDrugs: false,
     hasAllergies: false,
     isPregnant: false,
@@ -495,11 +503,15 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
     const medicalHistoryPayload: PatientMedicalHistoryPayload = {
       isGoodHealth: formData.medicalHistory.isGoodHealth,
       isUnderTreatment: formData.medicalHistory.isUnderTreatment,
+      treatmentDetails: formData.medicalHistory.treatmentDetails.trim(),
       hasIllnessOperation: formData.medicalHistory.hasIllnessOperation,
       isHospitalized: formData.medicalHistory.isHospitalized,
+      hospitalizationDetails: formData.medicalHistory.hospitalizationDetails.trim() || formData.medicalHistory.pastSurgeries.trim(),
       isTakingMeds: formData.medicalHistory.isTakingMeds,
       usesTobacco: formData.medicalHistory.usesTobacco,
+      smokingLevel: formData.medicalHistory.smokingLevel.trim(),
       drinksAlcohol: formData.medicalHistory.drinksAlcohol,
+      drinkingLevel: formData.medicalHistory.drinkingLevel.trim(),
       usesDrugs: formData.medicalHistory.usesDrugs,
       hasAllergies: formData.medicalHistory.hasAllergies,
       isPregnant: formData.medicalHistory.isPregnant,
@@ -509,7 +521,7 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
       conditions: formData.medicalHistory.conditions,
       allergies: formData.medicalHistory.allergiesNotes.trim(),
       medications: formData.medicalHistory.currentMedications.trim(),
-      pastSurgeries: formData.medicalHistory.pastSurgeries.trim(),
+      pastSurgeries: formData.medicalHistory.pastSurgeries.trim() || formData.medicalHistory.hospitalizationDetails.trim(),
       otherConditions: formData.medicalHistory.otherConditions.trim(),
     };
 
@@ -656,11 +668,15 @@ export const useKioskStore = create<KioskStoreState>((set, get) => ({
       patientId: patientId,
       isGoodHealth: formData.medicalHistory.isGoodHealth,
       isUnderTreatment: formData.medicalHistory.isUnderTreatment,
+      treatmentDetails: formData.medicalHistory.treatmentDetails,
       hasIllnessOperation: formData.medicalHistory.hasIllnessOperation,
       isHospitalized: formData.medicalHistory.isHospitalized,
+      hospitalizationDetails: formData.medicalHistory.hospitalizationDetails,
       isTakingMeds: formData.medicalHistory.isTakingMeds,
       usesTobacco: formData.medicalHistory.usesTobacco,
+      smokingLevel: formData.medicalHistory.smokingLevel,
       drinksAlcohol: formData.medicalHistory.drinksAlcohol,
+      drinkingLevel: formData.medicalHistory.drinkingLevel,
       usesDrugs: formData.medicalHistory.usesDrugs,
       hasAllergies: formData.medicalHistory.hasAllergies,
       isPregnant: formData.medicalHistory.isPregnant,

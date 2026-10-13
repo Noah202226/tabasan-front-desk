@@ -104,6 +104,10 @@ export interface MedicalHistoryRecord {
   allergies: string; // E.g., "Penicillin, Local Anesthesia"
   medications: string; // E.g., "Amlodipine 5mg OD"
   pastSurgeries?: string;
+  hospitalizationDetails?: string;
+  treatmentDetails?: string;
+  smokingLevel?: string;
+  drinkingLevel?: string;
   otherConditions?: string;
 
   /** Timestamps */
@@ -149,11 +153,15 @@ export interface PatientVisitReasonPayload {
 export interface PatientMedicalHistoryPayload {
   isGoodHealth: boolean;
   isUnderTreatment: boolean;
+  treatmentDetails?: string;
   hasIllnessOperation: boolean;
   isHospitalized: boolean;
+  hospitalizationDetails?: string;
   isTakingMeds: boolean;
   usesTobacco: boolean;
+  smokingLevel?: string;
   drinksAlcohol: boolean;
+  drinkingLevel?: string;
   usesDrugs: boolean;
   hasAllergies: boolean;
   isPregnant: boolean;
